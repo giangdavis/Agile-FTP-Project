@@ -1,6 +1,7 @@
 package Client;
 
 import net.schmizz.sshj.SSHClient;
+import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
 
 import java.io.IOException;
 
@@ -48,7 +49,7 @@ public class Client {
         setUsername(username);
         setPassword(password);
         setPort(port);
-        //ssh.addHostKeyVerifier(new PromiscuousVerifier());
+        ssh.addHostKeyVerifier(new PromiscuousVerifier());
         ssh.loadKnownHosts();
         ssh.connect(getHostname(), getPort());
         ssh.authPassword(getUsername(), getPassword());
