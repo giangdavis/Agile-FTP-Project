@@ -1,6 +1,7 @@
 package Client;
 
 import net.schmizz.sshj.SSHClient;
+import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
 
 import java.io.IOException;
 
