@@ -5,10 +5,9 @@ import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.sftp.FileAttributes;
 import net.schmizz.sshj.sftp.SFTPClient;
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
-import net.schmizz.sshj.sftp.FileAttributes;
-import net.schmizz.sshj.sftp.SFTPClient;
 import net.schmizz.sshj.xfer.FileSystemFile;
 
+import java.io.File;
 import java.io.IOException;
 
 public class Client {
@@ -104,17 +103,12 @@ public class Client {
         }
     }
 
-    public void uploadFile(String filename, SFTPClient sftp) throws IOException {
+    public void uploadFile(String filename, SFTPClient sftp, String destination) throws IOException {
         try
         {
             final String fileToTransfer = filename;
-            sftp.put(new FileSytemFile(fileToTransfer), "/tmp");
-//            try {
-//                sftp.put(new FileSytemFile(fileToTransfer), "/tmp");
-//            }
-//            finally {
-//                sftp.close();
-//            }
+
+            sftp.put(new FileSystemFile(fileToTransfer), destination);
         }
         catch(IOException e) {
            System.out.println("Error in uploading file to sftp server, try again");
