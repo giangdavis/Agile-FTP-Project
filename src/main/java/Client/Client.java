@@ -1,6 +1,5 @@
 package Client;
 
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.sftp.FileAttributes;
 import net.schmizz.sshj.sftp.SFTPClient;
