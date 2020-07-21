@@ -35,7 +35,7 @@ public class ClientTest {
             }
         };
 
-        SSHClient client = c.connect("1", "2", "3", 4);
+        c.connect("1", "2", "3", 4);
 
         assertNotNull(client);
 //        verify(client).connect("1", "2", "3", 4);
