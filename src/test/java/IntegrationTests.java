@@ -10,17 +10,15 @@ import java.nio.file.FileSystemException;
 import static org.junit.Assert.assertTrue;
 
 public class IntegrationTests {
-    // Your credentials here -- REMOVE BEFORE YOU PUSH TO GITHUB
-    private String user = "xxxx";
-    private String password = "xxxx";
-    private String host_name = "babbage.cs.pdx.edu";
-    private int port = 22;
+    // You can put your credentials in here -- REMOVE THEM BEFORE PUSHING TO GITHUB
+    // Or you can have a .env file with your credentials in it and the values in the .env file will be used
+    private Credentials credentials = new Credentials(null, null, null, 0);
+
 
     private Client client = new Client();
 
     public static final String TEST_DIRECTORY = "test_resources";
     public static final String TEST_DIRECTORY_PREFIX = "test_resources\\";
-
 
     @BeforeClass
     public static void setup() throws FileSystemException {
@@ -44,7 +42,7 @@ public class IntegrationTests {
     public void ListFilesTest() throws IOException {
         try {
             // tested using babbage, insert your creds here for testing, REMEMBER TO REMOVE THEM BEFORE PUSHING TO GITHUB
-            client.connect(user, password, host_name, port);
+            client.connect(credentials.getUser(), credentials.getPassword(), credentials.getHostname(), credentials.getPort());
             final SFTPClient sftp = client.getSshClient().newSFTPClient();
             client.listRemoteFiles(".", sftp);
         } finally {
@@ -57,7 +55,7 @@ public class IntegrationTests {
     public void createDirectoryTest() throws IOException {
         try {
             // tested using babbage, insert your creds here for testing, REMEMBER TO REMOVE THEM BEFORE PUSHING TO GITHUB
-            client.connect(user, password, host_name, port);
+            client.connect(credentials.getUser(), credentials.getPassword(), credentials.getHostname(), credentials.getPort());
             final SFTPClient sftp = client.getSshClient().newSFTPClient();
             client.makeDirectory("testDir", sftp);
             FileAttributes att = sftp.statExistence("testDir");
@@ -73,7 +71,7 @@ public class IntegrationTests {
     public void createDirectoryWithPathTest() throws IOException {
         try {
             // tested using babbage, insert your creds here for testing, REMEMBER TO REMOVE THEM BEFORE PUSHING TO GITHUB
-            client.connect(user, password, host_name, port);
+            client.connect(credentials.getUser(), credentials.getPassword(), credentials.getHostname(), credentials.getPort());
             final SFTPClient sftp = client.getSshClient().newSFTPClient();
             client.makeDirectoryWithPath("testDir/newDir", sftp);
             FileAttributes att = sftp.statExistence("testDir/newDir");
@@ -89,7 +87,7 @@ public class IntegrationTests {
     public void getNonexistentFileTest() throws IOException {
         try {
             // tested using babbage, insert your creds here for testing, REMEMBER TO REMOVE THEM BEFORE PUSHING TO GITHUB
-            client.connect(user, password, host_name, port);
+            client.connect(credentials.getUser(), credentials.getPassword(), credentials.getHostname(), credentials.getPort());
             final SFTPClient sftp = client.getSshClient().newSFTPClient();
             final String file_name = "nonexistent_file.txt";
             File tempFile = new File(TEST_DIRECTORY_PREFIX + file_name);
@@ -109,7 +107,7 @@ public class IntegrationTests {
 
         try {
             // tested using babbage, insert your creds here for testing, REMEMBER TO REMOVE THEM BEFORE PUSHING TO GITHUB
-            client.connect(user, password, host_name, port);
+            client.connect(credentials.getUser(), credentials.getPassword(), credentials.getHostname(), credentials.getPort());
             final SFTPClient sftp = client.getSshClient().newSFTPClient();
 
             client.getRemoteFile(file_name, TEST_DIRECTORY_PREFIX + file_name, sftp);
