@@ -172,7 +172,7 @@ public class Client {
      * This method returns true or false, if true is returned the directory was successfully deleted, if false the directory
      * was not deleted
      * @param path A string which represents the directory path
-     * @param client A SFTPClient object which is used to remove the file
+     * @param client A SFTPClient object which is used to remove the directory
      * @return true or false depending on if the directory was deleted
      * @throws IOException
      */
