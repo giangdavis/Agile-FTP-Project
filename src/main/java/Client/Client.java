@@ -69,10 +69,8 @@ public class Client {
         setSshClient(ssh);
     }
 
-
-
     public void listRemoteFiles(String directory, SFTPClient client) throws IOException{
-        String Dir = (directory.equals("."))? "root":directory;
+        String Dir = (directory.equals(".")) ? "root" : directory;
             try {
                 System.out.println("List of Remote Files in " + Dir + ":");
                 List fileList = client.ls(directory);
@@ -83,9 +81,24 @@ public class Client {
 
                 System.out.println("Remote files listed successfully");
             } catch (IOException e) {
-                System.err.println("Error while listing remote files" + e);
+                System.err.println("Error while listing remote files:" + e);
             }
 
+    }
+
+    public void getRemoteFile(String source, String dest, SFTPClient client) throws IOException {
+        if(sshClient.isConnected()) {
+            try {
+                client.get(source, dest);
+                System.out.println("Remote files listed successfully");
+            } catch (IOException e) {
+                System.err.println("Error while getting remote file:" + e);
+            } finally {
+                client.close();
+            }
+        } else {
+            System.out.println("Error while getting remote file: SSH Client is not connected");
+        }
     }
 
     public void makeDirectory(String dirName, SFTPClient client) throws IOException {
