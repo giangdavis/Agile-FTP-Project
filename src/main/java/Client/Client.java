@@ -167,4 +167,31 @@ public class Client {
             return false;
         }
     }
+
+    /**
+     * This method returns true or false, if true is returned the directory was successfully deleted, if false the directory
+     * was not deleted
+     * @param path A string which represents the directory path
+     * @param client A SFTPClient object which is used to remove the file
+     * @return true or false depending on if the directory was deleted
+     * @throws IOException
+     */
+    public boolean deleteDirectory(String path, SFTPClient client) throws IOException {
+       FileAttributes att = client.statExistence(dirName);
+       if (att != null) {
+           try {
+               client.rmdir(dirName);
+               System.out.println("Directory was succesfully deleted.");
+               return true;
+           }
+           catch(IOException e) {
+               System.out.println("Directory deletion failed for some reason, try again");
+               return false;
+           }
+       }
+       else {
+           System.out.println("Directory does not exist.");
+           return false;
+       }
+    }
 }
