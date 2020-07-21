@@ -87,24 +87,36 @@ public class Client {
             }
 
     }
-<<<<<<< Updated upstream
 
-=======
-    public void listRemoteFiles(String directory, SFTPClient client) throws IOException{
-        String Dir = (directory.equals("."))? "root":directory;
-        try {
-            System.out.println("List of Remote Files in " + Dir + ":");
-            List fileList = client.ls(directory);
-
-            for (int i = 0; i < fileList.size(); i++) {
-                System.out.println(fileList.get(i).toString());
+    public void makeDirectory(String dirName, SFTPClient client) throws IOException {
+        FileAttributes att = client.statExistence(dirName);
+        if(att == null) {
+            try {
+                client.mkdir(dirName);
+                System.out.println("Directory successfully created!");
             }
-
-            System.out.println("Remote files listed successfully");
-        } catch (IOException e) {
-            System.err.println("Error while listing remote files" + e);
+            catch(IOException e) {
+                System.out.println("Something happened, try creating the specified directory again");
+            }
         }
-
+        else {
+            System.out.println("Directory with specified name already exists!");
+        }
     }
->>>>>>> Stashed changes
+
+    public void makeDirectoryWithPath(String path, SFTPClient client) throws IOException {
+        FileAttributes att = client.statExistence(path);
+        if(att == null) {
+            try {
+                client.mkdirs(path);
+                System.out.println("Directory successfully created!");
+            }
+            catch(IOException e) {
+                System.out.println("Something happened, try creating the  specified directory again");
+            }
+        }
+        else {
+            System.out.println("Directory with specified path already exists!");
+        }
+    }
 }
