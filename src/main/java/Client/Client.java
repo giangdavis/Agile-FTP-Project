@@ -103,15 +103,18 @@ public class Client {
         }
     }
 
-    public void uploadFile(String filename, SFTPClient sftp, String destination) throws IOException {
+    public boolean uploadFile(String filename, SFTPClient sftp, String destination) throws IOException {
         try
         {
             final String fileToTransfer = filename;
 
             sftp.put(new FileSystemFile(fileToTransfer), destination);
+            System.out.println("File upload successful");
+            return true;
         }
         catch(IOException e) {
            System.out.println("Error in uploading file to sftp server, try again");
+           return false;
         }
     }
 }
