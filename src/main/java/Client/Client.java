@@ -87,5 +87,24 @@ public class Client {
             }
 
     }
+<<<<<<< Updated upstream
 
+=======
+    public void listRemoteFiles(String directory, SFTPClient client) throws IOException{
+        String Dir = (directory.equals("."))? "root":directory;
+        try {
+            System.out.println("List of Remote Files in " + Dir + ":");
+            List fileList = client.ls(directory);
+
+            for (int i = 0; i < fileList.size(); i++) {
+                System.out.println(fileList.get(i).toString());
+            }
+
+            System.out.println("Remote files listed successfully");
+        } catch (IOException e) {
+            System.err.println("Error while listing remote files" + e);
+        }
+
+    }
+>>>>>>> Stashed changes
 }

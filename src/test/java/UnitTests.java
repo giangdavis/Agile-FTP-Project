@@ -26,3 +26,21 @@ public class UnitTests {
 
 
     }
+<<<<<<< Updated upstream
+=======
+
+    @Test
+    public void ListFilesTest() throws IOException {
+        try {
+            // tested using babbage, insert your creds here for testing, REMEMBER TO REMOVE THEM BEFORE PUSHING TO GITHUB
+            client.connect("xxxx", "xxxx", "xxxx", 22);
+            final SFTPClient sftp = client.getSshClient().newSFTPClient();
+            client.listRemoteFiles(".", sftp);
+        }
+        finally {
+            client.getSshClient().disconnect();
+            System.out.println("Disconnected!");
+        }
+    }
+}
+>>>>>>> Stashed changes
