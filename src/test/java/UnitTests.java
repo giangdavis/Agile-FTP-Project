@@ -2,6 +2,8 @@ import Client.Client;
 import net.schmizz.sshj.sftp.FileAttributes;
 import net.schmizz.sshj.sftp.SFTPClient;
 import org.junit.Test;
+
+import java.io.File;
 import java.io.IOException;
 
 import static org.junit.Assert.assertTrue;
@@ -39,5 +41,30 @@ public class UnitTests {
             client.getSshClient().disconnect();
             System.out.println("Disconnected!");
         }
+    }
+
+    @Test
+    public void createUploadTest() throws IOException {
+        SFTPClient sftp = null;
+
+        try {
+            final String username = "";
+            final String password = "";
+            final String hostname = "babbage.cs.pdx.edu";
+            final int port = 22;
+            final String src = System.getProperty("user.home") + File.separator + "Desktop"+ File.separator + "test";
+            final String destination = System.getProperty("user.home") + File.separator + "ubuntu" + File.separator + "tmp";
+
+            client.connect(username, password, hostname, port);
+
+            sftp = client.getSshClient().newSFTPClient();
+            assertTrue(client.uploadFile(src, sftp, destination));
+        }
+        finally {
+            sftp.close();
+            client.getSshClient().disconnect();
+            System.out.println("disconnected");
+        }
+
     }
 }
