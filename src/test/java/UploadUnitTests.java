@@ -17,8 +17,8 @@ public class UploadUnitTests {
         SFTPClient sftp = null;
 
         try {
-            final String username = "giang";
-            final String password = "hg9e-fM5de";
+            final String username = "";
+            final String password = "";
             final String hostname = "babbage.cs.pdx.edu";
             final int port = 22;
             final String src = System.getProperty("user.home") + File.separator + "Desktop"+ File.separator + "test";
