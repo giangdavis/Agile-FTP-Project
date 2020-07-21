@@ -6,7 +6,7 @@ import java.io.IOException;
 
 import static org.junit.Assert.assertTrue;
 
-public class UnitTests {
+public class IntegrationTests {
     private Client client = new Client();
 
     @Test
