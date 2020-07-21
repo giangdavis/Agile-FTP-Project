@@ -6,6 +6,7 @@ import net.schmizz.sshj.sftp.SFTPClient;
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
 
 import java.io.IOException;
+import java.util.List;
 
 public class Client {
     private String hostname;
@@ -66,6 +67,25 @@ public class Client {
         ssh.authPassword(getUsername(), getPassword());
         System.out.println("Connected!");
         setSshClient(ssh);
+    }
+
+
+
+    public void listRemoteFiles(String directory, SFTPClient client) throws IOException{
+        String Dir = (directory.equals("."))? "root":directory;
+            try {
+                System.out.println("List of Remote Files in " + Dir + ":");
+                List fileList = client.ls(directory);
+
+                for (int i = 0; i < fileList.size(); i++) {
+                    System.out.println(fileList.get(i).toString());
+                }
+
+                System.out.println("Remote files listed successfully");
+            } catch (IOException e) {
+                System.err.println("Error while listing remote files" + e);
+            }
+
     }
 
     public void makeDirectory(String dirName, SFTPClient client) throws IOException {
