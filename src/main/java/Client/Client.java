@@ -177,10 +177,10 @@ public class Client {
      * @throws IOException
      */
     public boolean deleteDirectory(String path, SFTPClient client) throws IOException {
-       FileAttributes att = client.statExistence(dirName);
+       FileAttributes att = client.statExistence(path);
        if (att != null) {
            try {
-               client.rmdir(dirName);
+               client.rmdir(path);
                System.out.println("Directory was succesfully deleted.");
                return true;
            }
