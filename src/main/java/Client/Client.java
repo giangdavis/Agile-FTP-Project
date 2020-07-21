@@ -1,6 +1,8 @@
 package Client;
 
 import net.schmizz.sshj.SSHClient;
+import net.schmizz.sshj.sftp.FileAttributes;
+import net.schmizz.sshj.sftp.SFTPClient;
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
 
 import java.io.IOException;
@@ -10,6 +12,7 @@ public class Client {
     private String username;
     private String password;
     private int port;
+    SSHClient sshClient;
 
     public String getHostname() {
         return hostname;
@@ -43,7 +46,15 @@ public class Client {
         this.port = port;
     }
 
-    public SSHClient connect(String username, String password, String hostname, int port) throws IOException {
+    public SSHClient getSshClient() {
+        return sshClient;
+    }
+
+    public void setSshClient(SSHClient sshClient) {
+        this.sshClient = sshClient;
+    }
+
+    public void connect(String username, String password, String hostname, int port) throws IOException {
         final SSHClient ssh = new SSHClient();
         setHostname(hostname);
         setUsername(username);
@@ -53,6 +64,39 @@ public class Client {
         ssh.loadKnownHosts();
         ssh.connect(getHostname(), getPort());
         ssh.authPassword(getUsername(), getPassword());
-        return ssh;
+        System.out.println("Connected!");
+        setSshClient(ssh);
+    }
+
+    public void makeDirectory(String dirName, SFTPClient client) throws IOException {
+        FileAttributes att = client.statExistence(dirName);
+        if(att == null) {
+            try {
+                client.mkdir(dirName);
+                System.out.println("Directory successfully created!");
+            }
+            catch(IOException e) {
+                System.out.println("Something happened, try creating the specified directory again");
+            }
+        }
+        else {
+            System.out.println("Directory with specified name already exists!");
+        }
+    }
+
+    public void makeDirectoryWithPath(String path, SFTPClient client) throws IOException {
+        FileAttributes att = client.statExistence(path);
+        if(att == null) {
+            try {
+                client.mkdirs(path);
+                System.out.println("Directory successfully created!");
+            }
+            catch(IOException e) {
+                System.out.println("Something happened, try creating the  specified directory again");
+            }
+        }
+        else {
+            System.out.println("Directory with specified path already exists!");
+        }
     }
 }
