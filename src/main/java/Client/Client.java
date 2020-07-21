@@ -103,6 +103,14 @@ public class Client {
         }
     }
 
+    /**
+     * This method returns true or false depending on if a file is successfully uploaded onto the remote server,
+     * if false the file was not uploaded
+     * @param filename A string which represents the filename of the file being uploaded
+     * @param sftp A SFTPClient object which is used to upload the file
+     * @return true or false depending on if the file was succesfully uploaded
+     * @throws IOException
+     */
     public boolean uploadFile(String filename, SFTPClient sftp, String destination) throws IOException {
         try
         {
