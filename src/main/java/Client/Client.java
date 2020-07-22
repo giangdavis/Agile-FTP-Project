@@ -259,4 +259,19 @@ public class Client {
            return false;
        }
     }
+    public void logoff()  {
+        final SSHClient ssh= new SSHClient();
+        try  {
+            if(ssh.isConnected())
+                ssh.disconnect();
+            System.out.println("log off");
+            System.exit(0);
+
+        }catch (IOException e)  {
+            e.printStackTrace();
+
+        }
+
+
+    }
 }
