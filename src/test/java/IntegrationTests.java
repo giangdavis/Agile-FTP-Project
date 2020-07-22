@@ -43,8 +43,7 @@ public class IntegrationTests {
         try {
             // tested using babbage, insert your creds here for testing, REMEMBER TO REMOVE THEM BEFORE PUSHING TO GITHUB
             client.connect(credentials.getUser(), credentials.getPassword(), credentials.getHostname(), credentials.getPort());
-            final SFTPClient sftp = client.getSshClient().newSFTPClient();
-            client.listRemoteFiles(".", sftp);
+            client.listRemoteFiles(".");
         } finally {
             client.getSshClient().disconnect();
             System.out.println("Disconnected!");
@@ -57,7 +56,7 @@ public class IntegrationTests {
             // tested using babbage, insert your creds here for testing, REMEMBER TO REMOVE THEM BEFORE PUSHING TO GITHUB
             client.connect(credentials.getUser(), credentials.getPassword(), credentials.getHostname(), credentials.getPort());
             final SFTPClient sftp = client.getSshClient().newSFTPClient();
-            client.makeDirectory("testDir", sftp);
+            client.makeDirectory("testDir");
             FileAttributes att = sftp.statExistence("testDir");
             assertTrue(att != null); // if the file exists, this att should not be null
         }
@@ -73,7 +72,7 @@ public class IntegrationTests {
             // tested using babbage, insert your creds here for testing, REMEMBER TO REMOVE THEM BEFORE PUSHING TO GITHUB
             client.connect(credentials.getUser(), credentials.getPassword(), credentials.getHostname(), credentials.getPort());
             final SFTPClient sftp = client.getSshClient().newSFTPClient();
-            client.makeDirectoryWithPath("testDir/newDir", sftp);
+            client.makeDirectoryWithPath("testDir/newDir");
             FileAttributes att = sftp.statExistence("testDir/newDir");
             assertTrue(att != null); // if the file exists, this att should not be null
         }
@@ -88,10 +87,9 @@ public class IntegrationTests {
         try {
             // tested using babbage, insert your creds here for testing, REMEMBER TO REMOVE THEM BEFORE PUSHING TO GITHUB
             client.connect(credentials.getUser(), credentials.getPassword(), credentials.getHostname(), credentials.getPort());
-            final SFTPClient sftp = client.getSshClient().newSFTPClient();
             final String file_name = "nonexistent_file.txt";
             File tempFile = new File(TEST_DIRECTORY_PREFIX + file_name);
-            client.getRemoteFile(file_name, TEST_DIRECTORY_PREFIX + file_name, sftp);
+            client.getRemoteFile(file_name, TEST_DIRECTORY_PREFIX + file_name);
             assertTrue(!tempFile.exists());
         }
         finally {
@@ -108,9 +106,8 @@ public class IntegrationTests {
         try {
             // tested using babbage, insert your creds here for testing, REMEMBER TO REMOVE THEM BEFORE PUSHING TO GITHUB
             client.connect(credentials.getUser(), credentials.getPassword(), credentials.getHostname(), credentials.getPort());
-            final SFTPClient sftp = client.getSshClient().newSFTPClient();
 
-            client.getRemoteFile(file_name, TEST_DIRECTORY_PREFIX + file_name, sftp);
+            client.getRemoteFile(file_name, TEST_DIRECTORY_PREFIX + file_name);
             assertTrue(tempFile.exists());
         }
         finally {

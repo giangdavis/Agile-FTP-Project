@@ -1,5 +1,7 @@
 import Client.Client;
 import net.schmizz.sshj.SSHClient;
+import net.schmizz.sshj.sftp.SFTPClient;
+import net.schmizz.sshj.userauth.UserAuthException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -8,12 +10,21 @@ import org.mockito.MockitoAnnotations;
 import java.io.IOException;
 
 import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 
 public class ClientTest {
+    @Mock
+    private SSHClient sshClient;
+
+    @Mock
+    private SFTPClient sftpClient;
 
     @Before
     public void setUp(){
@@ -22,25 +33,37 @@ public class ClientTest {
 
     @Test
     public void testConnect() throws IOException {
-//        when(client.connect(anyString(), anyString(), anyString(), anyInt()))
-//            .thenReturn(new SSHClient());
+        // Arrange
+        Client client = new Client() {
+            @Override
+            protected SSHClient createSSHClient() {
+                return sshClient;
+            }
+        };
 
-        final SSHClient sshClient = mock(SSHClient.class);
+        // Act
+        boolean result = client.connect("", "", "", 22);
 
-        doNothing().when(sshClient).loadKnownHosts();
-        doNothing().when(sshClient).connect(anyString(), anyInt());
-        doNothing().when(sshClient).authPassword(anyString(), anyString());
-//        Client c = new Client() {
-//            @Override
-//            protected SSHClient createSSHClient() {
-//                return sshClient;
-//            }
-//        };
+        // Verify
+        assertTrue(result);
+    }
 
-//        c.connect("1", "2", "3", 4);
+    @Test
+    public void testConnect_UserAuthFails() throws IOException {
+        doThrow(new UserAuthException("Invalid credentials")).when(sshClient).authPassword(anyString(), anyString());
 
-//        verify(client).connect("1", "2", "3", 4);
+        // Arrange
+        Client client = new Client() {
+            @Override
+            protected SSHClient createSSHClient() {
+                return sshClient;
+            }
+        };
 
-        // Make the ssh.connect a thing in the interface, then use 'when' on like client.connect() to return the ssh
+        // Act
+        boolean result = client.connect("", "", "", 22);
+
+        // Verify
+        assertFalse(result);
     }
 }
