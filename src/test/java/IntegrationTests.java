@@ -143,7 +143,19 @@ public class IntegrationTests {
             client.getSshClient().disconnect();
             System.out.println("disconnected");
         }
+    }
 
+    @Test
+    public void deleteDirectoryTest() throws IOException {
+        try {
+            client.connect(credentials.getUser(), credentials.getPassword(), credentials.getHostname(), credentials.getPort());
+            final SFTPClient sftp = client.getSshClient().newSFTPClient();
+            assertTrue(client.deleteDirectory("testDir", sftp));
+        }
+        finally {
+            client.getSshClient().disconnect();
+            System.out.println("Disconnected!");
+        }
     }
 }
 
