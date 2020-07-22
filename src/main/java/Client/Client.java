@@ -4,7 +4,9 @@ import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.sftp.FileAttributes;
 import net.schmizz.sshj.sftp.SFTPClient;
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
+import net.schmizz.sshj.xfer.FileSystemFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -55,24 +57,30 @@ public class Client {
         this.sshClient = sshClient;
     }
 
-    public void connect(String username, String password, String hostname, int port) throws IOException {
-        final SSHClient ssh = new SSHClient();
+    public boolean connect(String username, String password, String hostname, int port) {
+        final SSHClient ssh = createSSHClient();
         setHostname(hostname);
         setUsername(username);
         setPassword(password);
         setPort(port);
-        ssh.addHostKeyVerifier(new PromiscuousVerifier());
-        ssh.loadKnownHosts();
-        ssh.connect(getHostname(), getPort());
-        ssh.authPassword(getUsername(), getPassword());
+        try {
+            ssh.addHostKeyVerifier(new PromiscuousVerifier());
+            ssh.loadKnownHosts();
+            ssh.connect(getHostname(), getPort());
+            ssh.authPassword(getUsername(), getPassword());
+        } catch(IOException e) {
+            System.err.println("Error while trying to connect:" + e);
+            return false;
+        }
         System.out.println("Connected!");
         setSshClient(ssh);
+        return true;
     }
 
-
-
-    public void listRemoteFiles(String directory, SFTPClient client) throws IOException{
-        String Dir = (directory.equals("."))? "root":directory;
+    public boolean listRemoteFiles(String directory) throws IOException {
+        if(getSshClient().isConnected()) {
+            String Dir = (directory.equals(".")) ? "root" : directory;
+            SFTPClient client = createSFTPClient();
             try {
                 System.out.println("List of Remote Files in " + Dir + ":");
                 List fileList = client.ls(directory);
@@ -83,9 +91,35 @@ public class Client {
 
                 System.out.println("Remote files listed successfully");
             } catch (IOException e) {
-                System.err.println("Error while listing remote files" + e);
+                System.err.println("Error while listing remote files:" + e);
+                return false;
+            } finally {
+                client.close();
             }
+        } else {
+            System.err.println("Error while listing remote files: SSH Client is not connected");
+            return false;
+        }
+        return true;
+    }
 
+    public boolean getRemoteFile(String source, String dest) throws IOException {
+        if(getSshClient().isConnected()) {
+            SFTPClient client = createSFTPClient();
+            try {
+                client.get(source, dest);
+                System.out.println("Remote files listed successfully");
+            } catch (IOException e) {
+                System.err.println("Error while getting remote file:" + e);
+                return false;
+            } finally {
+                client.close();
+            }
+        } else {
+            System.err.println("Error while getting remote file: SSH Client is not connected");
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -166,6 +200,37 @@ public class Client {
             System.out.println("File with specified path does not exist!");
             return false;
         }
+    }
+
+    /**
+     * This method returns true or false depending on if a file is successfully uploaded onto the remote server,
+     * if false the file was not uploaded
+     * @param filename A string which represents the filename of the file being uploaded
+     * @param sftp A SFTPClient object which is used to upload the file
+     * @return true or false depending on if the file was succesfully uploaded
+     * @throws IOException
+     */
+    public boolean uploadFile(String filename, SFTPClient sftp, String destination) throws IOException {
+        try
+        {
+            final String fileToTransfer = filename;
+
+            sftp.put(new FileSystemFile(fileToTransfer), destination);
+            System.out.println("File upload successful");
+            return true;
+        }
+        catch(IOException e) {
+           System.out.println("Error in uploading file to sftp server, try again");
+           return false;
+        }
+    }
+
+    protected SSHClient createSSHClient() {
+        return new SSHClient();
+    }
+
+    protected SFTPClient createSFTPClient() throws IOException {
+        return sshClient.newSFTPClient();
     }
 
     /**
