@@ -120,58 +120,84 @@ public class Client {
         return true;
     }
 
-    public boolean makeDirectory(String dirName) throws IOException {
-        if(getSshClient().isConnected()) {
-            SFTPClient client = createSFTPClient();
-            FileAttributes att = client.statExistence(dirName);
-            if (att == null) {
-                try {
-                    client.mkdir(dirName);
-                    System.out.println("Directory successfully created!");
-                } catch (IOException e) {
-                    System.err.println("Something happened, try creating the specified directory again");
-                    return false;
-                } finally {
-                    client.close();
-                }
-            } else {
-                System.err.println("Directory with specified name already exists!");
+    /**
+     * This method returns true or false depending on if a directory with a specified name was created,
+     * this by default will create the directory in the home directory
+     * @param dirName A string which represents the directory name
+     * @param client A SFTPClient object which is used to make the directory
+     * @return true or false depending on if the directory was successfully created
+     * @throws IOException
+     */
+    public boolean makeDirectory(String dirName, SFTPClient client) throws IOException {
+        FileAttributes att = client.statExistence(dirName);
+        if(att == null) {
+            try {
+                client.mkdir(dirName);
+                System.out.println("Directory successfully created!");
+                return true;
+            }
+            catch(IOException e) {
+                System.out.println("Something happened, try creating the specified directory again");
                 return false;
             }
-        } else {
-            System.err.println("Error while creating remote directory: SSH Client is not connected");
+        }
+        else {
+            System.out.println("Directory with specified name already exists!");
             return false;
         }
-        return true;
     }
 
-    public boolean makeDirectoryWithPath(String path) throws IOException {
-        if(getSshClient().isConnected()) {
-            SFTPClient client = createSFTPClient();
-            FileAttributes att = client.statExistence(path);
-            if (att == null) {
-                try {
-                    client.mkdirs(path);
-                    System.out.println("Directory successfully created!");
-                } catch (IOException e) {
-                    System.err.println("Something happened, try creating the specified directory again");
-                    return false;
-                } finally {
-                    client.close();
-                }
-            } else {
-                System.err.println("Directory with specified path already exists!");
+    /**
+     * This method returns true or false depending on if a directory with a specified path was created
+     * @param path A string which represents the path of where to create a directory
+     * @param client A SFTPClient object which is used to make the directory
+     * @return true or false depending on if the directory was successfully created
+     * @throws IOException
+     */
+    public boolean makeDirectoryWithPath(String path, SFTPClient client) throws IOException {
+        FileAttributes att = client.statExistence(path);
+        if(att == null) {
+            try {
+                client.mkdirs(path);
+                System.out.println("Directory successfully created!");
+                return true;
+            }
+            catch(IOException e) {
+                System.out.println("Something happened, try creating the specified directory again");
                 return false;
             }
-        } else {
-            System.err.println("Error while creating remote directory: SSH Client is not connected");
+        }
+        else {
+            System.out.println("Directory with specified path already exists!");
             return false;
         }
-        return true;
     }
 
-    protected SSHClient createSSHClient() {
-        return new SSHClient();
+    /**
+     * This method returns true or false, if true is returned the file was successfully deleted, if false the file
+     * was not deleted
+     * @param path A string which represents the path to a file
+     * @param client A SFTPClient object which is used to remove the file
+     * @return true or false depending on if the file was deleted
+     * @throws IOException
+     */
+    public boolean removeFile(String path, SFTPClient client) throws IOException {
+        FileAttributes att = client.statExistence(path);
+        if(att != null) {
+            try {
+                client.rm(path);
+                System.out.println("File was successfully deleted!");
+                return true;
+            }
+            catch(IOException e) {
+                System.out.println("Something happened, try deleting the file again");
+                return false;
+            }
+        }
+        else {
+            System.out.println("File with specified path does not exist!");
+            return false;
+        }
     }
 
     protected SFTPClient createSFTPClient() throws IOException {
