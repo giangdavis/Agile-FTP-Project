@@ -1,5 +1,4 @@
 import Client.Client;
-import java.io.IOException;
 import java.util.Scanner;
 
 public class FtpApplication {
@@ -9,29 +8,31 @@ public class FtpApplication {
         String password;
         String hostname;
         int port;
+        boolean connected = false;
+        boolean running = true;
         Client client = new Client();
 
-        System.out.println("----------SFTP Client----------");
-        System.out.println("Please enter your desired connection information");
+        do {
+            System.out.println("----------SFTP Client----------");
+            System.out.println("Please enter your desired connection information");
 
-        System.out.print("Username: ");
-        username = scan.next();
+            System.out.print("Username: ");
+            username = scan.next();
 
-        System.out.print("Password: ");
-        password = scan.next();
+            System.out.print("Password: ");
+            password = scan.next();
 
-        System.out.print("Hostname: ");
-        hostname = scan.next();
+            System.out.print("Hostname: ");
+            hostname = scan.next();
 
-        System.out.print("Port: ");
-        port = scan.nextInt();
+            System.out.print("Port: ");
+            port = scan.nextInt();
 
-        try {
             client.connect(username, password, hostname, port);
-        }
 
-        catch(IOException e){
-            System.out.println(e.getMessage());
-        }
+        } while(running);
+
+
+
     }
 }
