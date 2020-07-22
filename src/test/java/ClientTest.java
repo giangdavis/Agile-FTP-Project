@@ -9,15 +9,10 @@ import org.mockito.MockitoAnnotations;
 
 import java.io.IOException;
 
-import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 public class ClientTest {
     @Mock
@@ -32,7 +27,7 @@ public class ClientTest {
     }
 
     @Test
-    public void testConnect() throws IOException {
+    public void testConnect() {
         // Arrange
         Client client = new Client() {
             @Override
@@ -50,9 +45,9 @@ public class ClientTest {
 
     @Test
     public void testConnect_UserAuthFails() throws IOException {
+        // Arrange
         doThrow(new UserAuthException("Invalid credentials")).when(sshClient).authPassword(anyString(), anyString());
 
-        // Arrange
         Client client = new Client() {
             @Override
             protected SSHClient createSSHClient() {
@@ -62,6 +57,79 @@ public class ClientTest {
 
         // Act
         boolean result = client.connect("", "", "", 22);
+
+        // Verify
+        assertFalse(result);
+    }
+
+    @Test
+    public void testGetRemoteFile() throws IOException {
+        // Arrange
+        when(sshClient.isConnected()).thenReturn(true);
+
+        Client client = new Client() {
+            @Override
+            public SSHClient getSshClient() {
+                return sshClient;
+            }
+
+            @Override
+            protected SFTPClient createSFTPClient() {
+                return sftpClient;
+            }
+        };
+
+        // Act
+        boolean result = client.getRemoteFile("", "");
+
+        // Verify
+        assertTrue(result);
+    }
+
+    @Test
+    public void testGetRemoteFile_SSHClientNotConnected() throws IOException {
+        // Arrange
+        when(sshClient.isConnected()).thenReturn(false);
+
+        Client client = new Client() {
+            @Override
+            public SSHClient getSshClient() {
+                return sshClient;
+            }
+
+            @Override
+            protected SFTPClient createSFTPClient() {
+                return sftpClient;
+            }
+        };
+
+        // Act
+        boolean result = client.getRemoteFile("", "");
+
+        // Verify
+        assertFalse(result);
+    }
+
+    @Test
+    public void testGetRemoteFile_SFTPClientFailedToGetFile() throws IOException {
+        // Arrange
+        when(sshClient.isConnected()).thenReturn(true);
+        doThrow(new IOException()).when(sftpClient).get(anyString(), anyString());
+
+        Client client = new Client() {
+            @Override
+            public SSHClient getSshClient() {
+                return sshClient;
+            }
+
+            @Override
+            protected SFTPClient createSFTPClient() {
+                return sftpClient;
+            }
+        };
+
+        // Act
+        boolean result = client.getRemoteFile("", "");
 
         // Verify
         assertFalse(result);

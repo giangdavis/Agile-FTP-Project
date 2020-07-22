@@ -4,7 +4,6 @@ import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.sftp.FileAttributes;
 import net.schmizz.sshj.sftp.SFTPClient;
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
-import net.schmizz.sshj.userauth.UserAuthException;
 
 import java.io.IOException;
 import java.util.List;
@@ -77,7 +76,7 @@ public class Client {
     }
 
     public boolean listRemoteFiles(String directory) throws IOException {
-        if(sshClient.isConnected()) {
+        if(getSshClient().isConnected()) {
             String Dir = (directory.equals(".")) ? "root" : directory;
             SFTPClient client = createSFTPClient();
             try {
@@ -103,7 +102,7 @@ public class Client {
     }
 
     public boolean getRemoteFile(String source, String dest) throws IOException {
-        if(sshClient.isConnected()) {
+        if(getSshClient().isConnected()) {
             SFTPClient client = createSFTPClient();
             try {
                 client.get(source, dest);
@@ -122,7 +121,7 @@ public class Client {
     }
 
     public boolean makeDirectory(String dirName) throws IOException {
-        if(sshClient.isConnected()) {
+        if(getSshClient().isConnected()) {
             SFTPClient client = createSFTPClient();
             FileAttributes att = client.statExistence(dirName);
             if (att == null) {
@@ -147,7 +146,7 @@ public class Client {
     }
 
     public boolean makeDirectoryWithPath(String path) throws IOException {
-        if(sshClient.isConnected()) {
+        if(getSshClient().isConnected()) {
             SFTPClient client = createSFTPClient();
             FileAttributes att = client.statExistence(path);
             if (att == null) {

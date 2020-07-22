@@ -41,7 +41,6 @@ public class IntegrationTests {
     @Test
     public void ListFilesTest() throws IOException {
         try {
-            // tested using babbage, insert your creds here for testing, REMEMBER TO REMOVE THEM BEFORE PUSHING TO GITHUB
             client.connect(credentials.getUser(), credentials.getPassword(), credentials.getHostname(), credentials.getPort());
             client.listRemoteFiles(".");
         } finally {
@@ -53,7 +52,6 @@ public class IntegrationTests {
     @Test
     public void createDirectoryTest() throws IOException {
         try {
-            // tested using babbage, insert your creds here for testing, REMEMBER TO REMOVE THEM BEFORE PUSHING TO GITHUB
             client.connect(credentials.getUser(), credentials.getPassword(), credentials.getHostname(), credentials.getPort());
             final SFTPClient sftp = client.getSshClient().newSFTPClient();
             client.makeDirectory("testDir");
@@ -69,7 +67,6 @@ public class IntegrationTests {
     @Test
     public void createDirectoryWithPathTest() throws IOException {
         try {
-            // tested using babbage, insert your creds here for testing, REMEMBER TO REMOVE THEM BEFORE PUSHING TO GITHUB
             client.connect(credentials.getUser(), credentials.getPassword(), credentials.getHostname(), credentials.getPort());
             final SFTPClient sftp = client.getSshClient().newSFTPClient();
             client.makeDirectoryWithPath("testDir/newDir");
@@ -85,7 +82,6 @@ public class IntegrationTests {
     @Test
     public void getNonexistentFileTest() throws IOException {
         try {
-            // tested using babbage, insert your creds here for testing, REMEMBER TO REMOVE THEM BEFORE PUSHING TO GITHUB
             client.connect(credentials.getUser(), credentials.getPassword(), credentials.getHostname(), credentials.getPort());
             final String file_name = "nonexistent_file.txt";
             File tempFile = new File(TEST_DIRECTORY_PREFIX + file_name);
@@ -104,9 +100,7 @@ public class IntegrationTests {
         File tempFile = new File(TEST_DIRECTORY_PREFIX + file_name);
 
         try {
-            // tested using babbage, insert your creds here for testing, REMEMBER TO REMOVE THEM BEFORE PUSHING TO GITHUB
             client.connect(credentials.getUser(), credentials.getPassword(), credentials.getHostname(), credentials.getPort());
-
             client.getRemoteFile(file_name, TEST_DIRECTORY_PREFIX + file_name);
             assertTrue(tempFile.exists());
         }
