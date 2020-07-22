@@ -115,7 +115,7 @@ public class IntegrationTests {
     public void removeFileTest() throws IOException {
         try {
             // tested using babbage, insert your creds here for testing, REMEMBER TO REMOVE THEM BEFORE PUSHING TO GITHUB
-            client.connect("blah", "blah", "babbage.cs.pdx.edu", 22);
+            client.connect(credentials.getUser(), credentials.getPassword(), credentials.getHostname(), credentials.getPort());
             final SFTPClient sftp = client.getSshClient().newSFTPClient();
             assertTrue(client.removeFile("testDir/testfile.txt", sftp));
         }
@@ -124,6 +124,5 @@ public class IntegrationTests {
             System.out.println("Disconnected!");
         }
     }
-}
 }
 

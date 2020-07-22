@@ -200,6 +200,10 @@ public class Client {
         }
     }
 
+    protected SSHClient createSSHClient() {
+        return new SSHClient();
+    }
+
     protected SFTPClient createSFTPClient() throws IOException {
         return sshClient.newSFTPClient();
     }
