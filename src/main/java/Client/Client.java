@@ -4,7 +4,9 @@ import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.sftp.FileAttributes;
 import net.schmizz.sshj.sftp.SFTPClient;
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
+import net.schmizz.sshj.xfer.FileSystemFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -197,6 +199,29 @@ public class Client {
         else {
             System.out.println("File with specified path does not exist!");
             return false;
+        }
+    }
+
+    /**
+     * This method returns true or false depending on if a file is successfully uploaded onto the remote server,
+     * if false the file was not uploaded
+     * @param filename A string which represents the filename of the file being uploaded
+     * @param sftp A SFTPClient object which is used to upload the file
+     * @return true or false depending on if the file was succesfully uploaded
+     * @throws IOException
+     */
+    public boolean uploadFile(String filename, SFTPClient sftp, String destination) throws IOException {
+        try
+        {
+            final String fileToTransfer = filename;
+
+            sftp.put(new FileSystemFile(fileToTransfer), destination);
+            System.out.println("File upload successful");
+            return true;
+        }
+        catch(IOException e) {
+           System.out.println("Error in uploading file to sftp server, try again");
+           return false;
         }
     }
 
