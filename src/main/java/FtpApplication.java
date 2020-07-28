@@ -29,6 +29,8 @@ public class FtpApplication {
             port = scan.nextInt();
 
             client.connect(username, password, hostname, port);
+            client.logoff();
+            System.out.println("logged off");
 
         } while(running);
 

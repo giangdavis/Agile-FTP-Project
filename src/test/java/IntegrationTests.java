@@ -157,5 +157,12 @@ public class IntegrationTests {
             System.out.println("Disconnected!");
         }
     }
+
+    @Test
+    public void logOffTest() {
+        client.connect(credentials.getUser(), credentials.getPassword(), credentials.getHostname(), credentials.getPort());
+        boolean result = client.logoff();
+        assertTrue(result);
+    }
 }
 

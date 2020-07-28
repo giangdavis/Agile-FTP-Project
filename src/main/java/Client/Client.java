@@ -259,4 +259,19 @@ public class Client {
            return false;
        }
     }
+    public boolean logoff() {
+        if(!getSshClient().isConnected()) {
+            System.out.println("Already disconnected!");
+            return true;
+        }
+
+        try {
+            getSshClient().disconnect();
+            System.out.println("Disconnected!");
+            return true;
+        } catch (IOException e) {
+            System.err.println("Error occurred while logging off:" + e);
+            return false;
+        }
+    }
 }
