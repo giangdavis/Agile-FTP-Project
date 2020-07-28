@@ -111,7 +111,7 @@ public class Client {
                 client.get(source, dest);
                 System.out.println("Remote files listed successfully");
             } catch (IOException e) {
-                System.err.println("Error while getting remote file:" + e);
+                System.err.println("Error while getting remote file: " + e);
                 return false;
             } finally {
                 client.close();
@@ -243,15 +243,19 @@ public class Client {
      * @throws IOException
      */
     public boolean uploadMultipleFiles(String[] files, SFTPClient sftp, String destination) throws IOException {
-        try {
-            for(String filename : files){
-                uploadFile(filename, sftp, destination);
+        if(getSshClient().isConnected()) {
+            try {
+                for (String filename : files) {
+                    uploadFile(filename, sftp, destination);
+                }
+            } catch (IOException e) {
+                return false;
             }
+            return true;
         }
-        catch(IOException e) {
+        else {
             return false;
         }
-        return true;
     }
 
     /**
