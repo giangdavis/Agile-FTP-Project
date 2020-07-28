@@ -149,6 +149,7 @@ public class IntegrationTests {
     @Test
     public void putMultipleTest() throws IOException {
         // To use these test files you would have to create files named "test" and "test2" on your desktop
+
         final String file = System.getProperty("user.home") + File.separator + "Desktop" + File.separator + "test";
         final String file2 = System.getProperty("user.home") + File.separator + "Desktop" + File.separator + "test2";
         final String destination = "INSERT_DESIRED_DESTINATION HERE";
