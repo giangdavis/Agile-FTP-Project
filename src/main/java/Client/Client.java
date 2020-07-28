@@ -9,6 +9,7 @@ import net.schmizz.sshj.xfer.FileSystemFile;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Scanner;
 
 public class Client {
     private String hostname;
@@ -220,8 +221,8 @@ public class Client {
             return true;
         }
         catch(IOException e) {
-           System.out.println("Error in uploading file to sftp server, try again");
-           return false;
+            System.out.println("Error in uploading file to sftp server, try again");
+            return false;
         }
     }
 
@@ -234,6 +235,44 @@ public class Client {
     }
 
     /**
+     * This method is used to upload multiple files. It returns true when file upload is successful else false.
+     * @param filename A string which represents the name of the file to be uploaded
+     * @param sftp A SFTPClient object used to upload the file
+     * @param destination A string which represents the destination path for the file being uploaded
+     * @return true or false depending on if the file was uploaded
+     * @throws IOException
+     */
+    public boolean uploadMultipleFiles(String filename, SFTPClient sftp, String destination) throws IOException {
+        try {
+            uploadFile(filename, sftp, destination);
+            String input;
+
+            do {
+                System.out.println("Would you like to upload another file? (y/n)");
+                Scanner scan = new Scanner(System.in);
+                input = scan.next();
+
+                if (input == "y") {
+                    System.out.print("Enter the filename: ");
+                    String fname = scan.next();
+                    System.out.print("Enter the destination: ");
+                    String dest = scan.next();
+                    uploadMultipleFiles(fname, sftp, dest);
+                } else if (input == "n") {
+                    return true;
+                } else {
+                    System.out.println("Please enter either y/n");
+                }
+            } while(input != "y" || input != "n");
+        }
+        catch(IOException e) {
+            System.out.println("Error uploading " + filename + " to the server, please try again");
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * This method returns true or false, if true is returned the directory was successfully deleted, if false the directory
      * was not deleted
      * @param path A string which represents the directory path
@@ -242,21 +281,21 @@ public class Client {
      * @throws IOException
      */
     public boolean deleteDirectory(String path, SFTPClient client) throws IOException {
-       FileAttributes att = client.statExistence(path);
-       if (att != null) {
-           try {
-               client.rmdir(path);
-               System.out.println("Directory was succesfully deleted.");
-               return true;
-           }
-           catch(IOException e) {
-               System.out.println("Directory deletion failed for some reason, try again");
-               return false;
-           }
-       }
-       else {
-           System.out.println("Directory does not exist.");
-           return false;
-       }
+        FileAttributes att = client.statExistence(path);
+        if (att != null) {
+            try {
+                client.rmdir(path);
+                System.out.println("Directory was succesfully deleted.");
+                return true;
+            }
+            catch(IOException e) {
+                System.out.println("Directory deletion failed for some reason, try again");
+                return false;
+            }
+        }
+        else {
+            System.out.println("Directory does not exist.");
+            return false;
+        }
     }
 }

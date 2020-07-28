@@ -134,4 +134,28 @@ public class ClientTest {
         // Verify
         assertFalse(result);
     }
+
+    @Test
+    public void testPutMultipleFiles() throws IOException {
+        // Arrange
+        when(sshClient.isConnected()).thenReturn(true);
+
+        Client client = new Client() {
+            @Override
+            public SSHClient getSshClient() {
+                return sshClient;
+            }
+
+            @Override
+            protected SFTPClient createSFTPClient() {
+                return sftpClient;
+            }
+        };
+
+        // Act
+        boolean result = client.uploadMultipleFiles("", sftpClient, "");
+
+        // Verify
+        assertTrue(result);
+    }
 }

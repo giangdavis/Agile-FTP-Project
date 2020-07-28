@@ -12,7 +12,7 @@ import static org.junit.Assert.assertTrue;
 public class IntegrationTests {
     // You can put your credentials in here -- REMOVE THEM BEFORE PUSHING TO GITHUB
     // Or you can have a .env file with your credentials in it and the values in the .env file will be used
-    private Credentials credentials = new Credentials(null, null, null, 0);
+    private Credentials credentials = new Credentials("", "", "babbage.cs.pdx.edu", 22);
 
 
     private Client client = new Client();
@@ -131,12 +131,30 @@ public class IntegrationTests {
 
         try {
             final String src = System.getProperty("user.home") + File.separator + "Desktop"+ File.separator + "test";
-            final String destination = System.getProperty("user.home") + File.separator + "ubuntu" + File.separator + "tmp";
+            //final String destination = System.getProperty("user.home") + File.separator + "ubuntu" + File.separator + "tmp";
+            final String destination = "/u/ehanson";
 
             client.connect(credentials.getUser(), credentials.getPassword(), credentials.getHostname(), credentials.getPort());
 
             sftp = client.getSshClient().newSFTPClient();
             assertTrue(client.uploadFile(src, sftp, destination));
+        }
+        finally {
+            sftp.close();
+            client.getSshClient().disconnect();
+            System.out.println("disconnected");
+        }
+    }
+
+    @Test
+    public void putMultipleTest() throws IOException {
+        final String file = System.getProperty("user.home") + File.separator + "Desktop" + File.separator + "test";
+        final String destination = "/u/ehanson";
+        SFTPClient sftp = null;
+        try {
+            client.connect(credentials.getUser(), credentials.getPassword(), credentials.getHostname(), credentials.getPort());
+            sftp = client.getSshClient().newSFTPClient();
+            assertTrue(client.uploadMultipleFiles(file, sftp, destination));
         }
         finally {
             sftp.close();
