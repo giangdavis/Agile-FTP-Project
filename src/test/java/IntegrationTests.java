@@ -131,8 +131,7 @@ public class IntegrationTests {
 
         try {
             final String src = System.getProperty("user.home") + File.separator + "Desktop"+ File.separator + "test";
-            //final String destination = System.getProperty("user.home") + File.separator + "ubuntu" + File.separator + "tmp";
-            final String destination = "/u/ehanson";
+            final String destination = System.getProperty("user.home") + File.separator + "ubuntu" + File.separator + "tmp";
 
             client.connect(credentials.getUser(), credentials.getPassword(), credentials.getHostname(), credentials.getPort());
 
