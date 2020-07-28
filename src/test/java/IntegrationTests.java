@@ -148,13 +148,17 @@ public class IntegrationTests {
 
     @Test
     public void putMultipleTest() throws IOException {
+        // To use these test files you would have to create files named "test" and "test2" on your desktop
         final String file = System.getProperty("user.home") + File.separator + "Desktop" + File.separator + "test";
-        final String destination = "/u/ehanson";
+        final String file2 = System.getProperty("user.home") + File.separator + "Desktop" + File.separator + "test2";
+        final String destination = "INSERT_DESIRED_DESTINATION HERE";
+        final String[] files = {file, file2};
         SFTPClient sftp = null;
+
         try {
             client.connect(credentials.getUser(), credentials.getPassword(), credentials.getHostname(), credentials.getPort());
             sftp = client.getSshClient().newSFTPClient();
-            assertTrue(client.uploadMultipleFiles(file, sftp, destination));
+            assertTrue(client.uploadMultipleFiles(files, sftp, destination));
         }
         finally {
             sftp.close();

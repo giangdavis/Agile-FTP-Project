@@ -221,7 +221,7 @@ public class Client {
             return true;
         }
         catch(IOException e) {
-            System.out.println("Error in uploading file to sftp server, try again");
+            System.out.println("Error in uploading " + filename + " to sftp server, try again");
             return false;
         }
     }
@@ -236,37 +236,19 @@ public class Client {
 
     /**
      * This method is used to upload multiple files. It returns true when file upload is successful else false.
-     * @param filename A string which represents the name of the file to be uploaded
-     * @param sftp A SFTPClient object used to upload the file
-     * @param destination A string which represents the destination path for the file being uploaded
+     * @param files An array of strings which represents the names of the files to be uploaded
+     * @param sftp A SFTPClient object used to upload the files
+     * @param destination A string which represents the destination path for the files being uploaded
      * @return true or false depending on if the file was uploaded
      * @throws IOException
      */
-    public boolean uploadMultipleFiles(String filename, SFTPClient sftp, String destination) throws IOException {
+    public boolean uploadMultipleFiles(String[] files, SFTPClient sftp, String destination) throws IOException {
         try {
-            uploadFile(filename, sftp, destination);
-            String input;
-
-            do {
-                System.out.println("Would you like to upload another file? (y/n)");
-                Scanner scan = new Scanner(System.in);
-                input = scan.next();
-
-                if (input == "y") {
-                    System.out.print("Enter the filename: ");
-                    String fname = scan.next();
-                    System.out.print("Enter the destination: ");
-                    String dest = scan.next();
-                    uploadMultipleFiles(fname, sftp, dest);
-                } else if (input == "n") {
-                    return true;
-                } else {
-                    System.out.println("Please enter either y/n");
-                }
-            } while(input != "y" || input != "n");
+            for(String filename : files){
+                uploadFile(filename, sftp, destination);
+            }
         }
         catch(IOException e) {
-            System.out.println("Error uploading " + filename + " to the server, please try again");
             return false;
         }
         return true;
