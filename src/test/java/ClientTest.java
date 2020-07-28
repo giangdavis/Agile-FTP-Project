@@ -134,4 +134,73 @@ public class ClientTest {
         // Verify
         assertFalse(result);
     }
+
+    @Test
+    public void testLogOff_Successful() {
+        // Arrange
+        when(sshClient.isConnected()).thenReturn(true);
+
+        Client client = new Client() {
+            @Override
+            public SSHClient getSshClient() { return sshClient; }
+        };
+
+        // Act
+        boolean result = client.logoff();
+
+        // Verify
+        assertTrue(result);
+    }
+
+    @Test
+    public void testLogOff_Failure() {
+        // Arrange
+        when(sshClient.isConnected()).thenReturn(true);
+
+        Client client = new Client() {
+            @Override
+            public SSHClient getSshClient() { return sshClient; }
+        };
+
+        // Act
+        boolean result = client.logoff();
+
+        // Verify
+        assertTrue(result);
+    }
+
+    @Test
+    public void testLogOff_SSHClientNotConnected() {
+        // Arrange
+        when(sshClient.isConnected()).thenReturn(false);
+
+        Client client = new Client() {
+            @Override
+            public SSHClient getSshClient() { return sshClient; }
+        };
+
+        // Act
+        boolean result = client.logoff();
+
+        // Verify
+        assertTrue(result);
+    }
+
+    @Test
+    public void testLogOff_ErrorWhileDisconnecting() throws IOException {
+        // Arrange
+        when(sshClient.isConnected()).thenReturn(true);
+        doThrow(new IOException()).when(sshClient).disconnect();
+
+        Client client = new Client() {
+            @Override
+            public SSHClient getSshClient() { return sshClient; }
+        };
+
+        // Act
+        boolean result = client.logoff();
+
+        // Verify
+        assertFalse(result);
+    }
 }
