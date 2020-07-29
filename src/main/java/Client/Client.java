@@ -270,7 +270,18 @@ public class Client {
             return false;
         }
     }
-
+    /**
+     * This method returns true or false, if true the file was renamed successfully,
+     * if false the file was not renamed
+     *
+     * @param path   A string which represents the directory path
+     *               Leave this as an empty string if you wish to create a new file
+     *               in current directory
+     * @param oldName A string that specifies the old file name
+     * @param newName A string that specifies the new name of the file
+     * @return true or false depending on if the file was renamed
+     * @throws IOException
+     */
     public boolean renameLocalFile(String path, String oldName, String newName) throws IOException {
         File oldFile = new File(path + oldName);
         File newFile = new File(path + newName);
