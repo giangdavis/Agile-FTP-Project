@@ -68,7 +68,7 @@ public class Client {
             ssh.loadKnownHosts();
             ssh.connect(getHostname(), getPort());
             ssh.authPassword(getUsername(), getPassword());
-        } catch(IOException e) {
+        } catch (IOException e) {
             System.err.println("Error while trying to connect:" + e);
             return false;
         }
@@ -78,7 +78,7 @@ public class Client {
     }
 
     public boolean listRemoteFiles(String directory) throws IOException {
-        if(getSshClient().isConnected()) {
+        if (getSshClient().isConnected()) {
             String Dir = (directory.equals(".")) ? "root" : directory;
             SFTPClient client = createSFTPClient();
             try {
@@ -104,7 +104,7 @@ public class Client {
     }
 
     public boolean getRemoteFile(String source, String dest) throws IOException {
-        if(getSshClient().isConnected()) {
+        if (getSshClient().isConnected()) {
             SFTPClient client = createSFTPClient();
             try {
                 client.get(source, dest);
@@ -125,25 +125,24 @@ public class Client {
     /**
      * This method returns true or false depending on if a directory with a specified name was created,
      * this by default will create the directory in the home directory
+     *
      * @param dirName A string which represents the directory name
-     * @param client A SFTPClient object which is used to make the directory
+     * @param client  A SFTPClient object which is used to make the directory
      * @return true or false depending on if the directory was successfully created
      * @throws IOException
      */
     public boolean makeDirectory(String dirName, SFTPClient client) throws IOException {
         FileAttributes att = client.statExistence(dirName);
-        if(att == null) {
+        if (att == null) {
             try {
                 client.mkdir(dirName);
                 System.out.println("Directory successfully created!");
                 return true;
-            }
-            catch(IOException e) {
+            } catch (IOException e) {
                 System.out.println("Something happened, try creating the specified directory again");
                 return false;
             }
-        }
-        else {
+        } else {
             System.out.println("Directory with specified name already exists!");
             return false;
         }
@@ -151,25 +150,24 @@ public class Client {
 
     /**
      * This method returns true or false depending on if a directory with a specified path was created
-     * @param path A string which represents the path of where to create a directory
+     *
+     * @param path   A string which represents the path of where to create a directory
      * @param client A SFTPClient object which is used to make the directory
      * @return true or false depending on if the directory was successfully created
      * @throws IOException
      */
     public boolean makeDirectoryWithPath(String path, SFTPClient client) throws IOException {
         FileAttributes att = client.statExistence(path);
-        if(att == null) {
+        if (att == null) {
             try {
                 client.mkdirs(path);
                 System.out.println("Directory successfully created!");
                 return true;
-            }
-            catch(IOException e) {
+            } catch (IOException e) {
                 System.out.println("Something happened, try creating the specified directory again");
                 return false;
             }
-        }
-        else {
+        } else {
             System.out.println("Directory with specified path already exists!");
             return false;
         }
@@ -178,25 +176,24 @@ public class Client {
     /**
      * This method returns true or false, if true is returned the file was successfully deleted, if false the file
      * was not deleted
-     * @param path A string which represents the path to a file
+     *
+     * @param path   A string which represents the path to a file
      * @param client A SFTPClient object which is used to remove the file
      * @return true or false depending on if the file was deleted
      * @throws IOException
      */
     public boolean removeFile(String path, SFTPClient client) throws IOException {
         FileAttributes att = client.statExistence(path);
-        if(att != null) {
+        if (att != null) {
             try {
                 client.rm(path);
                 System.out.println("File was successfully deleted!");
                 return true;
-            }
-            catch(IOException e) {
+            } catch (IOException e) {
                 System.out.println("Something happened, try deleting the file again");
                 return false;
             }
-        }
-        else {
+        } else {
             System.out.println("File with specified path does not exist!");
             return false;
         }
@@ -205,23 +202,22 @@ public class Client {
     /**
      * This method returns true or false depending on if a file is successfully uploaded onto the remote server,
      * if false the file was not uploaded
+     *
      * @param filename A string which represents the filename of the file being uploaded
-     * @param sftp A SFTPClient object which is used to upload the file
+     * @param sftp     A SFTPClient object which is used to upload the file
      * @return true or false depending on if the file was succesfully uploaded
      * @throws IOException
      */
     public boolean uploadFile(String filename, SFTPClient sftp, String destination) throws IOException {
-        try
-        {
+        try {
             final String fileToTransfer = filename;
 
             sftp.put(new FileSystemFile(fileToTransfer), destination);
             System.out.println("File upload successful");
             return true;
-        }
-        catch(IOException e) {
-           System.out.println("Error in uploading file to sftp server, try again");
-           return false;
+        } catch (IOException e) {
+            System.out.println("Error in uploading file to sftp server, try again");
+            return false;
         }
     }
 
@@ -236,31 +232,31 @@ public class Client {
     /**
      * This method returns true or false, if true is returned the directory was successfully deleted, if false the directory
      * was not deleted
-     * @param path A string which represents the directory path
+     *
+     * @param path   A string which represents the directory path
      * @param client A SFTPClient object which is used to remove the directory
      * @return true or false depending on if the directory was deleted
      * @throws IOException
      */
     public boolean deleteDirectory(String path, SFTPClient client) throws IOException {
-       FileAttributes att = client.statExistence(path);
-       if (att != null) {
-           try {
-               client.rmdir(path);
-               System.out.println("Directory was succesfully deleted.");
-               return true;
-           }
-           catch(IOException e) {
-               System.out.println("Directory deletion failed for some reason, try again");
-               return false;
-           }
-       }
-       else {
-           System.out.println("Directory does not exist.");
-           return false;
-       }
+        FileAttributes att = client.statExistence(path);
+        if (att != null) {
+            try {
+                client.rmdir(path);
+                System.out.println("Directory was succesfully deleted.");
+                return true;
+            } catch (IOException e) {
+                System.out.println("Directory deletion failed for some reason, try again");
+                return false;
+            }
+        } else {
+            System.out.println("Directory does not exist.");
+            return false;
+        }
     }
+
     public boolean logoff() {
-        if(!getSshClient().isConnected()) {
+        if (!getSshClient().isConnected()) {
             System.out.println("Already disconnected!");
             return true;
         }
@@ -271,6 +267,25 @@ public class Client {
             return true;
         } catch (IOException e) {
             System.err.println("Error occurred while logging off:" + e);
+            return false;
+        }
+    }
+
+    public boolean renameLocalFile(String path, String oldName, String newName) throws IOException {
+        File oldFile = new File(path + oldName);
+        File newFile = new File(path + newName);
+
+        if (!oldFile.exists())
+            throw new IOException("Renaming file failed! File does not exist.");
+        if (newFile.exists())
+            throw new IOException("Renaming file failed! The new filename already existed.");
+
+        boolean success = oldFile.renameTo(newFile);
+        if (success == true) {
+            System.out.println(oldName + " has been renamed to " + newName + " successfully!");
+            return true;
+        } else {
+            System.err.println("Error occurred trying to rename a file");
             return false;
         }
     }

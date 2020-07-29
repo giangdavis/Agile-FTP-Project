@@ -164,5 +164,10 @@ public class IntegrationTests {
         boolean result = client.logoff();
         assertTrue(result);
     }
+
+    @Test
+    public void renameLocalFileTest() throws IOException {
+       assertTrue(client.renameLocalFile("path","t1", "t2"));
+    }
 }
 

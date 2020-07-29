@@ -203,4 +203,11 @@ public class ClientTest {
         // Verify
         assertFalse(result);
     }
+
+    @Test
+    public void testRenameFile_FileDoesNotExist() throws IOException {
+        Client client = new Client();
+
+        assertFalse(client.renameLocalFile("path","t1", "t2"));
+    }
 }
