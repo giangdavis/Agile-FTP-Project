@@ -110,7 +110,7 @@ public class Client {
                 client.get(source, dest);
                 System.out.println("Remote files listed successfully");
             } catch (IOException e) {
-                System.err.println("Error while getting remote file:" + e);
+                System.err.println("Error while getting remote file: " + e);
                 return false;
             } finally {
                 client.close();
@@ -215,8 +215,9 @@ public class Client {
             sftp.put(new FileSystemFile(fileToTransfer), destination);
             System.out.println("File upload successful");
             return true;
-        } catch (IOException e) {
-            System.out.println("Error in uploading file to sftp server, try again");
+        }
+        catch(IOException e) {
+            System.out.println("Error in uploading " + filename + " to sftp server, try again");
             return false;
         }
     }
@@ -227,6 +228,30 @@ public class Client {
 
     protected SFTPClient createSFTPClient() throws IOException {
         return sshClient.newSFTPClient();
+    }
+
+    /**
+     * This method is used to upload multiple files. It returns true when file upload is successful else false.
+     * @param files An array of strings which represents the names of the files to be uploaded
+     * @param sftp A SFTPClient object used to upload the files
+     * @param destination A string which represents the destination path for the files being uploaded
+     * @return true or false depending on if the file was uploaded
+     * @throws IOException
+     */
+    public boolean uploadMultipleFiles(String[] files, SFTPClient sftp, String destination) throws IOException {
+        if(getSshClient().isConnected()) {
+            try {
+                for (String filename : files) {
+                    uploadFile(filename, sftp, destination);
+                }
+            } catch (IOException e) {
+                return false;
+            }
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
     /**
@@ -245,11 +270,13 @@ public class Client {
                 client.rmdir(path);
                 System.out.println("Directory was succesfully deleted.");
                 return true;
-            } catch (IOException e) {
+            }
+            catch(IOException e) {
                 System.out.println("Directory deletion failed for some reason, try again");
                 return false;
             }
-        } else {
+        }
+        else {
             System.out.println("Directory does not exist.");
             return false;
         }
