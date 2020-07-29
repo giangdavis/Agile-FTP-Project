@@ -9,6 +9,7 @@ import net.schmizz.sshj.xfer.FileSystemFile;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Scanner;
 
 public class Client {
     private String hostname;
@@ -296,6 +297,30 @@ public class Client {
         } catch (IOException e) {
             System.err.println("Error occurred while logging off:" + e);
             return false;
+        }
+    }
+
+    /**
+     * The <code>changeRemotePermissions</code> method takes an sftpClient object,
+     * requests a file name from the command line, then
+     * requests a chmod code from the command line.  It then attempts to apply the
+     * specified chmod code to the specified file.
+     */
+    public void changeRemotePermissions(SFTPClient client, String path) {
+        //Scanner scanner = new Scanner(System.in);
+        //System.out.println("Enter the file you want to change permissions for: ");
+        //String file = scanner.nextLine().trim();
+        //System.out.println("Enter the permissions command: ");
+        //String permissionCode = scanner.nextLine();
+        try {
+            client.chmod(path, Integer.parseInt("777", 8));
+            System.out.println( "Successfully changed the file permissions..!!");
+        }
+        catch (NumberFormatException | IOException e) {
+            System.out.println( "Failed to change file permissions");
+            System.out.println(e.getMessage());
+            System.out.println("Error. Could not change permissions or invalid chmod code. See the message above.");
+            return;
         }
     }
 }

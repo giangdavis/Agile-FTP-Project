@@ -12,6 +12,7 @@ import static org.junit.Assert.assertTrue;
 public class IntegrationTests {
     // You can put your credentials in here -- REMOVE THEM BEFORE PUSHING TO GITHUB
     // Or you can have a .env file with your credentials in it and the values in the .env file will be used
+
     private Credentials credentials = new Credentials("", "", "babbage.cs.pdx.edu", 22);
 
 
@@ -42,7 +43,19 @@ public class IntegrationTests {
     public void ListFilesTest() throws IOException {
         try {
             client.connect(credentials.getUser(), credentials.getPassword(), credentials.getHostname(), credentials.getPort());
-            client.listRemoteFiles(".");
+            client.listRemoteFiles("./testDir");
+        } finally {
+            client.getSshClient().disconnect();
+            System.out.println("Disconnected!");
+        }
+    }
+
+    @Test
+    public void ChangePermissionsOnRemoteTest() throws IOException {
+        try {
+            client.connect(credentials.getUser(), credentials.getPassword(), credentials.getHostname(), credentials.getPort());
+            final SFTPClient sftp = client.getSshClient().newSFTPClient();
+            client.changeRemotePermissions(sftp, "./testDir/newDir");
         } finally {
             client.getSshClient().disconnect();
             System.out.println("Disconnected!");
@@ -69,7 +82,7 @@ public class IntegrationTests {
         try {
             client.connect(credentials.getUser(), credentials.getPassword(), credentials.getHostname(), credentials.getPort());
             final SFTPClient sftp = client.getSshClient().newSFTPClient();
-            client.makeDirectoryWithPath("testDir/newDir", sftp);
+            client.makeDirectoryWithPath("testDir/newDir1", sftp);
             FileAttributes att = sftp.statExistence("testDir/newDir");
             assertTrue(att != null); // if the file exists, this att should not be null
         }
@@ -133,7 +146,7 @@ public class IntegrationTests {
             final String src = System.getProperty("user.home") + File.separator + "Desktop"+ File.separator + "test";
             final String destination = System.getProperty("user.home") + File.separator + "ubuntu" + File.separator + "tmp";
 
-            client.connect(credentials.getUser(), credentials.getPassword(), credentials.getHostname(), credentials.getPort());
+           client.connect(credentials.getUser(), credentials.getPassword(), credentials.getHostname(), credentials.getPort());
 
             sftp = client.getSshClient().newSFTPClient();
             assertTrue(client.uploadFile(src, sftp, destination));
