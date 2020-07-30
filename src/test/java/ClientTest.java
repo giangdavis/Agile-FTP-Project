@@ -134,4 +134,135 @@ public class ClientTest {
         // Verify
         assertFalse(result);
     }
+
+    @Test
+    public void testPutMultipleFiles() throws IOException {
+        // Arrange
+        when(sshClient.isConnected()).thenReturn(true);
+
+        Client client = new Client() {
+            @Override
+            public SSHClient getSshClient() {
+                return sshClient;
+            }
+
+            @Override
+            protected SFTPClient createSFTPClient() {
+                return sftpClient;
+            }
+        };
+
+        // Act
+        String[] arr = {"t1","t2"};
+        boolean result = client.uploadMultipleFiles(arr, sftpClient, "something/");
+
+        // Verify
+        assertTrue(result);
+    }
+
+    @Test
+    public void testPutMultipleFiles_SSHClientNotConnected() throws IOException {
+        when(sshClient.isConnected()).thenReturn(false);
+
+        Client client = new Client() {
+            @Override
+            public SSHClient getSshClient() {
+                return sshClient;
+            }
+
+            @Override
+            protected SFTPClient createSFTPClient() {
+                return sftpClient;
+            }
+        };
+
+        // Act
+        String[] arr = {"t1","t2"};
+        boolean result = client.uploadMultipleFiles(arr, sftpClient, "something/");
+
+        // Verify
+        assertFalse(result);
+    }
+
+    @Test
+    public void testLogOff_Successful() {
+        // Arrange
+        when(sshClient.isConnected()).thenReturn(true);
+
+        Client client = new Client() {
+            @Override
+            public SSHClient getSshClient() { return sshClient; }
+        };
+
+        // Act
+        boolean result = client.logoff();
+
+        // Verify
+        assertTrue(result);
+    }
+
+    @Test
+    public void testLogOff_Failure() {
+        // Arrange
+        when(sshClient.isConnected()).thenReturn(true);
+
+        Client client = new Client() {
+            @Override
+            public SSHClient getSshClient() { return sshClient; }
+        };
+
+        // Act
+        boolean result = client.logoff();
+
+        // Verify
+        assertTrue(result);
+    }
+
+    @Test
+    public void testLogOff_SSHClientNotConnected() {
+        // Arrange
+        when(sshClient.isConnected()).thenReturn(false);
+
+        Client client = new Client() {
+            @Override
+            public SSHClient getSshClient() { return sshClient; }
+        };
+
+        // Act
+        boolean result = client.logoff();
+
+        // Verify
+        assertTrue(result);
+    }
+
+    @Test
+    public void testLogOff_ErrorWhileDisconnecting() throws IOException {
+        // Arrange
+        when(sshClient.isConnected()).thenReturn(true);
+        doThrow(new IOException()).when(sshClient).disconnect();
+
+        Client client = new Client() {
+            @Override
+            public SSHClient getSshClient() { return sshClient; }
+        };
+
+        // Act
+        boolean result = client.logoff();
+
+        // Verify
+        assertFalse(result);
+    }
+
+    @Test
+    public void testRenameFile_FileDoesNotExist() throws IOException {
+        Client client = new Client();
+
+        assertFalse(client.renameLocalFile("path","t1", "t2"));
+    }
+    @Test
+    public void testRenameFile_RemoteServer_Missing() throws  IOException  {
+        Client client = new Client();
+        assertFalse(Client.renameRemoteFile("", "", sftpClient));
+
+    }
 }
