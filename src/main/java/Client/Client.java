@@ -6,9 +6,9 @@ import net.schmizz.sshj.sftp.SFTPClient;
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
 import net.schmizz.sshj.xfer.FileSystemFile;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.List;
+import java.util.Properties;
 
 public class Client {
     private String hostname;
@@ -283,6 +283,7 @@ public class Client {
             return false;
         }
     }
+
     public boolean logoff() {
         if(!getSshClient().isConnected()) {
             System.out.println("Already disconnected!");
@@ -296,6 +297,58 @@ public class Client {
         } catch (IOException e) {
             System.err.println("Error occurred while logging off:" + e);
             return false;
+        }
+    }
+
+    /**
+     * This method saves a connection for unique hostnames. If details to a hostname exists in the connection.properties
+     * file the method will exit.
+     * @param username A string which contains the username
+     * @param password A string which contains the password
+     * @param hostname A string which contains the hostname
+     * @param port A string which contains the port
+     * @throws IOException
+     */
+    public void saveConnectionInformation(String username, String password, String hostname, String port) throws IOException {
+        File file = new File("src/main/resources/connection.properties");
+        FileOutputStream os;
+        file.createNewFile();
+
+        if(isInConnectionFile(file, hostname)) {
+            return; // ALREADY IN CONNECTION FILE
+        } else {
+            os = new FileOutputStream(file, true);
+        }
+
+        Properties prop = new Properties();
+
+        try(OutputStream out = os) {
+            prop.setProperty(hostname + "_username", username);
+            prop.setProperty(hostname + "_password", password);
+            prop.setProperty(hostname + "_hostname", hostname);
+            prop.setProperty(hostname + "_port", port);
+            prop.store(out, null);
+        }
+    }
+
+    /**
+     * This is a helper method that is used in saveConnectionInformation(). It checks to see if a property with a specific
+     * hostname exists in the connection.properties file already. If it does it returns true else if there is no
+     * property it will return false.
+     * @param connectionFile A File object for the connection.properites file
+     * @param hostname A string which contains the hostname
+     * @return true or false depending on if there is an existing property in the connection.properties file
+     * @throws IOException
+     */
+    public boolean isInConnectionFile(File connectionFile, String hostname) throws IOException {
+        InputStream input = new FileInputStream(connectionFile);
+        Properties prop = new Properties();
+        prop.load(input);
+
+        if(prop.getProperty(hostname + "_hostname") == null) {
+            return false;
+        } else {
+            return true;
         }
     }
 }
