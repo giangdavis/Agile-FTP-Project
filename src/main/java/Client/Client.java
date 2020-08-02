@@ -310,6 +310,7 @@ public class Client {
      * The code changes the permissions on the remote file.
      * @param client SFTPClient object
      * @param path path of the file
+     * @return returns true if the permission changed successfully else returns false
      */
     public boolean changeRemotePermissions(SFTPClient client, String path) {
         try {
