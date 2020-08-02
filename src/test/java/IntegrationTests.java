@@ -55,7 +55,7 @@ public class IntegrationTests {
         try {
             client.connect(credentials.getUser(), credentials.getPassword(), credentials.getHostname(), credentials.getPort());
             final SFTPClient sftp = client.getSshClient().newSFTPClient();
-            client.changeRemotePermissions(sftp, "./testDir/newDir");
+            assertTrue(client.changeRemotePermissions(sftp, "./testDir/newDir"));
         } finally {
             client.getSshClient().disconnect();
             System.out.println("Disconnected!");

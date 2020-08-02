@@ -78,6 +78,12 @@ public class Client {
         return true;
     }
 
+    /**
+     * This method lists all the files/directories of the given path
+     * @param directory The path of the directory
+     * @return returns true if listed successfully else returns false
+     * @throws IOException
+     */
     public boolean listRemoteFiles(String directory) throws IOException {
         if(getSshClient().isConnected()) {
             String Dir = (directory.equals(".")) ? "root" : directory;
@@ -301,26 +307,21 @@ public class Client {
     }
 
     /**
-     * The <code>changeRemotePermissions</code> method takes an sftpClient object,
-     * requests a file name from the command line, then
-     * requests a chmod code from the command line.  It then attempts to apply the
-     * specified chmod code to the specified file.
+     * The code changes the permissions on the remote file.
+     * @param client SFTPClient object
+     * @param path path of the file
      */
-    public void changeRemotePermissions(SFTPClient client, String path) {
-        //Scanner scanner = new Scanner(System.in);
-        //System.out.println("Enter the file you want to change permissions for: ");
-        //String file = scanner.nextLine().trim();
-        //System.out.println("Enter the permissions command: ");
-        //String permissionCode = scanner.nextLine();
+    public boolean changeRemotePermissions(SFTPClient client, String path) {
         try {
             client.chmod(path, Integer.parseInt("777", 8));
             System.out.println( "Successfully changed the file permissions..!!");
+            return true;
         }
         catch (NumberFormatException | IOException e) {
             System.out.println( "Failed to change file permissions");
             System.out.println(e.getMessage());
             System.out.println("Error. Could not change permissions or invalid chmod code. See the message above.");
-            return;
+            return false;
         }
     }
 }
