@@ -199,5 +199,17 @@ public class IntegrationTests {
         boolean result = client.logoff();
         assertTrue(result);
     }
+
+    @Test
+    public void renameLocalFileTest() throws IOException {
+       assertTrue(client.renameLocalFile("path","t1", "t2"));
+    }
+
+    // This test really doesn't need to connect to a SFTP server, this is purely just to write to a properties file
+    // Usage of the saveConnectionInformation() method would be just passing in the connection details a user enters
+    @Test
+    public void saveConnectionTest() throws IOException {
+        client.saveConnectionInformation("est29", "test2", "babbage.cs.pdx.edu.pdx.jasdlasj", "test3");
+    }
 }
 
