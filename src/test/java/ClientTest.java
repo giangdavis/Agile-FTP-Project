@@ -154,7 +154,7 @@ public class ClientTest {
 
         // Act
         String[] arr = {"t1","t2"};
-        boolean result = client.uploadMultipleFiles(arr, sftpClient, "something/");
+        boolean result = client.uploadMultipleFiles(arr, "something/");
 
         // Verify
         assertTrue(result);
@@ -178,7 +178,7 @@ public class ClientTest {
 
         // Act
         String[] arr = {"t1","t2"};
-        boolean result = client.uploadMultipleFiles(arr, sftpClient, "something/");
+        boolean result = client.uploadMultipleFiles(arr, "something/");
 
         // Verify
         assertFalse(result);

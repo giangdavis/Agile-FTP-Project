@@ -71,14 +71,15 @@ public class IntegrationTests {
     @Test
     @Order(1)
     public void createDirectoryTest() throws IOException {
+        client.connect(credentials.getUser(), credentials.getPassword(), credentials.getHostname(), credentials.getPort());
+        final SFTPClient sftp = client.getSshClient().newSFTPClient();
         try {
-            client.connect(credentials.getUser(), credentials.getPassword(), credentials.getHostname(), credentials.getPort());
-            final SFTPClient sftp = client.getSshClient().newSFTPClient();
-            client.makeDirectory(REMOTE_TEST_DIRECTORY, sftp);
+            client.makeDirectory(REMOTE_TEST_DIRECTORY);
             FileAttributes att = sftp.statExistence(REMOTE_TEST_DIRECTORY);
             assertTrue(att != null); // if the file exists, this att should not be null
         }
         finally {
+            sftp.close();
             client.getSshClient().disconnect();
             System.out.println("Disconnected!");
         }
@@ -87,14 +88,15 @@ public class IntegrationTests {
     @Test
     @Order(2)
     public void createDirectoryWithPathTest() throws IOException {
+        client.connect(credentials.getUser(), credentials.getPassword(), credentials.getHostname(), credentials.getPort());
+        final SFTPClient sftp = client.getSshClient().newSFTPClient();
         try {
-            client.connect(credentials.getUser(), credentials.getPassword(), credentials.getHostname(), credentials.getPort());
-            final SFTPClient sftp = client.getSshClient().newSFTPClient();
-            client.makeDirectoryWithPath(REMOTE_NESTED_TEST_DIRECTORY, sftp);
+            client.makeDirectoryWithPath(REMOTE_NESTED_TEST_DIRECTORY);
             FileAttributes att = sftp.statExistence(REMOTE_NESTED_TEST_DIRECTORY);
             assertTrue(att != null); // if the file exists, this att should not be null
         }
         finally {
+            sftp.close();
             client.getSshClient().disconnect();
             System.out.println("Disconnected!");
         }
@@ -103,16 +105,17 @@ public class IntegrationTests {
     @Test
     @Order(3)
     public void createUploadTest() throws IOException {
-        SFTPClient sftp = null;
-
+        client.connect(credentials.getUser(), credentials.getPassword(), credentials.getHostname(), credentials.getPort());
+        final SFTPClient sftp = client.getSshClient().newSFTPClient();
         try {
             final String src = LOCAL_TEST_DIRECTORY + File.separator + TEST_FILE_ONE;
             final String destination = REMOTE_NESTED_TEST_DIRECTORY;
 
-            client.connect(credentials.getUser(), credentials.getPassword(), credentials.getHostname(), credentials.getPort());
+            assertTrue(client.uploadFile(src, destination));
 
-            sftp = client.getSshClient().newSFTPClient();
-            assertTrue(client.uploadFile(src, sftp, destination));
+            // Check that the file was uploaded
+            FileAttributes att = sftp.statExistence(destination + "/" + TEST_FILE_ONE);
+            assertTrue(att != null); // if the file exists, this att should not be null
         }
         finally {
             sftp.close();
@@ -143,12 +146,18 @@ public class IntegrationTests {
     @Test
     @Order(5)
     public void removeFileTest() throws IOException {
+        client.connect(credentials.getUser(), credentials.getPassword(), credentials.getHostname(), credentials.getPort());
+        final SFTPClient sftp = client.getSshClient().newSFTPClient();
+
         try {
-            client.connect(credentials.getUser(), credentials.getPassword(), credentials.getHostname(), credentials.getPort());
-            final SFTPClient sftp = client.getSshClient().newSFTPClient();
-            assertTrue(client.removeFile(REMOTE_NESTED_TEST_DIRECTORY + "/" + TEST_FILE_ONE, sftp));
+            assertTrue(client.removeFile(REMOTE_NESTED_TEST_DIRECTORY + "/" + TEST_FILE_ONE));
+
+            // Check the file was deleted
+            FileAttributes att = sftp.statExistence(REMOTE_NESTED_TEST_DIRECTORY + "/" + TEST_FILE_ONE);
+            assertTrue(att == null); // if the file exists, this att should not be null
         }
         finally {
+            sftp.close();
             client.getSshClient().disconnect();
             System.out.println("Disconnected!");
         }
@@ -161,16 +170,22 @@ public class IntegrationTests {
         final String file_two = LOCAL_TEST_DIRECTORY + File.separator + TEST_FILE_TWO;
         final String destination = REMOTE_TEST_DIRECTORY;
         final String[] files = {file_one, file_two};
-        SFTPClient sftp = null;
+
+        client.connect(credentials.getUser(), credentials.getPassword(), credentials.getHostname(), credentials.getPort());
+        final SFTPClient sftp = client.getSshClient().newSFTPClient();
 
         try {
-            client.connect(credentials.getUser(), credentials.getPassword(), credentials.getHostname(), credentials.getPort());
-            sftp = client.getSshClient().newSFTPClient();
-            assertTrue(client.uploadMultipleFiles(files, sftp, destination));
+            assertTrue(client.uploadMultipleFiles(files, destination));
+
+            // Check the files were uploaded
+            FileAttributes att_one = sftp.statExistence(REMOTE_TEST_DIRECTORY + "/" + TEST_FILE_ONE);
+            FileAttributes att_two = sftp.statExistence(REMOTE_TEST_DIRECTORY + "/" + TEST_FILE_TWO);
+            assertTrue(att_one != null); // if the file exists, this att should not be null
+            assertTrue(att_two != null); // if the file exists, this att should not be null
         }
         finally {
-//            client.removeFile(REMOTE_TEST_DIRECTORY + "/" + TEST_FILE_ONE, sftp);
-//            client.removeFile(REMOTE_TEST_DIRECTORY + "/" + TEST_FILE_TWO, sftp);
+            client.removeFile(REMOTE_TEST_DIRECTORY + "/" + TEST_FILE_ONE);
+            client.removeFile(REMOTE_TEST_DIRECTORY + "/" + TEST_FILE_TWO);
             sftp.close();
             client.getSshClient().disconnect();
             System.out.println("disconnected");
@@ -180,13 +195,20 @@ public class IntegrationTests {
     @Test
     @Order(7)
     public void deleteDirectoryTest() throws IOException {
+        client.connect(credentials.getUser(), credentials.getPassword(), credentials.getHostname(), credentials.getPort());
+        final SFTPClient sftp = client.getSshClient().newSFTPClient();
         try {
-            client.connect(credentials.getUser(), credentials.getPassword(), credentials.getHostname(), credentials.getPort());
-            final SFTPClient sftp = client.getSshClient().newSFTPClient();
-            assertTrue(client.deleteDirectory(REMOTE_NESTED_TEST_DIRECTORY, sftp));
-            assertTrue(client.deleteDirectory(REMOTE_TEST_DIRECTORY, sftp));
+            assertTrue(client.deleteDirectory(REMOTE_NESTED_TEST_DIRECTORY));
+            assertTrue(client.deleteDirectory(REMOTE_TEST_DIRECTORY));
+
+            // Check the directories were deleted
+            FileAttributes att_one = sftp.statExistence(REMOTE_TEST_DIRECTORY);
+            FileAttributes att_two = sftp.statExistence(REMOTE_NESTED_TEST_DIRECTORY);
+            assertTrue(att_one == null); // if the file exists, this att should not be null
+            assertTrue(att_two == null); // if the file exists, this att should not be null
         }
         finally {
+            sftp.close();
             client.getSshClient().disconnect();
             System.out.println("Disconnected!");
         }
