@@ -1,12 +1,17 @@
 import Client.Client;
 import net.schmizz.sshj.sftp.FileAttributes;
 import net.schmizz.sshj.sftp.SFTPClient;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileSystemException;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -145,6 +150,33 @@ public class IntegrationTests {
 
     @Test
     @Order(5)
+    public void ChangePermissionsOnRemoteTest() throws IOException {
+        client.connect(credentials.getUser(), credentials.getPassword(), credentials.getHostname(), credentials.getPort());
+        final SFTPClient sftp = client.getSshClient().newSFTPClient();
+        try {
+            assertTrue(client.changeRemotePermissions(REMOTE_NESTED_TEST_DIRECTORY + "/" + TEST_FILE_ONE, "000"));
+
+            // Check file permissions did change
+            FileAttributes att = sftp.statExistence(REMOTE_NESTED_TEST_DIRECTORY + "/" + TEST_FILE_ONE);
+            assertEquals(0, att.getMode().getPermissionsMask());
+
+
+            // Test again (just in case file permission had previously been set to 000 already)
+            assertTrue(client.changeRemotePermissions(REMOTE_NESTED_TEST_DIRECTORY + "/" + TEST_FILE_ONE, "444"));
+
+            // Check file permissions did change
+            att = sftp.statExistence(REMOTE_NESTED_TEST_DIRECTORY + "/" + TEST_FILE_ONE);
+            assertEquals(292, att.getMode().getPermissionsMask());
+
+        } finally {
+            sftp.close();
+            client.getSshClient().disconnect();
+            System.out.println("Disconnected!");
+        }
+    }
+
+    @Test
+    @Order(6)
     public void removeFileTest() throws IOException {
         client.connect(credentials.getUser(), credentials.getPassword(), credentials.getHostname(), credentials.getPort());
         final SFTPClient sftp = client.getSshClient().newSFTPClient();
@@ -164,7 +196,7 @@ public class IntegrationTests {
     }
 
     @Test
-    @Order(6)
+    @Order(7)
     public void putMultipleTest() throws IOException {
         final String file_one = LOCAL_TEST_DIRECTORY + File.separator + TEST_FILE_ONE;
         final String file_two = LOCAL_TEST_DIRECTORY + File.separator + TEST_FILE_TWO;
@@ -193,7 +225,7 @@ public class IntegrationTests {
     }
 
     @Test
-    @Order(7)
+    @Order(8)
     public void deleteDirectoryTest() throws IOException {
         client.connect(credentials.getUser(), credentials.getPassword(), credentials.getHostname(), credentials.getPort());
         final SFTPClient sftp = client.getSshClient().newSFTPClient();
@@ -241,7 +273,20 @@ public class IntegrationTests {
     }
 
     @Test
-    public void ListFilesTest() throws IOException {
+    public void renameLocalFileTest() throws IOException {
+        assertTrue(client.renameLocalFile(LOCAL_TEST_DIRECTORY + File.separator, TEST_FILE_ONE, "temp"));
+        assertTrue(client.renameLocalFile(LOCAL_TEST_DIRECTORY + File.separator, "temp", TEST_FILE_ONE));
+    }
+
+    // This test really doesn't need to connect to a SFTP server, this is purely just to write to a properties file
+    // Usage of the saveConnectionInformation() method would be just passing in the connection details a user enters
+    @Test
+    public void saveConnectionTest() throws IOException {
+        client.saveConnectionInformation("est29", "test2", "babbage.cs.pdx.edu.pdx.jasdlasj", "test3");
+    }
+
+    @Test
+    public void listRemoteFilesTest() throws IOException {
         try {
             client.connect(credentials.getUser(), credentials.getPassword(), credentials.getHostname(), credentials.getPort());
             client.listRemoteFiles(".");
