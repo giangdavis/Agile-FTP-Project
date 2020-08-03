@@ -6,7 +6,12 @@ import net.schmizz.sshj.sftp.SFTPClient;
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
 import net.schmizz.sshj.xfer.FileSystemFile;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.Properties;
 
@@ -270,7 +275,7 @@ public class Client {
         if (att != null) {
             try {
                 client.rmdir(path);
-                System.out.println("Directory was succesfully deleted.");
+                System.out.println("Directory was successfully deleted.");
                 return true;
             }
             catch(IOException e) {
