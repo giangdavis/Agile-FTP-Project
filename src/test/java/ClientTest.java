@@ -252,4 +252,24 @@ public class ClientTest {
         // Verify
         assertFalse(result);
     }
+
+    // Only worrying about a "happy" path test since the logging of the connection details isn't dependent on the
+    // SFTP client being connected or anything
+    @Test
+    public void saveConnectionInfoTest() throws IOException {
+        when(sshClient.isConnected()).thenReturn(true);
+        Client client = new Client() {
+            @Override
+            public SSHClient getSshClient() { return sshClient; }
+        };
+
+        client.saveConnectionInformation("testUser", "testing2", "testing", Integer.toString(22));
+    }
+
+    @Test
+    public void testRenameFile_FileDoesNotExist() throws IOException {
+        Client client = new Client();
+
+        assertFalse(client.renameLocalFile("path","t1", "t2"));
+    }
 }
