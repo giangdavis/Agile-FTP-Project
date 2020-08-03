@@ -211,8 +211,7 @@ public class Client {
      * @throws IOException
      */
     public boolean uploadFile(String filename, SFTPClient sftp, String destination) throws IOException {
-        try
-        {
+        try {
             final String fileToTransfer = filename;
 
             sftp.put(new FileSystemFile(fileToTransfer), destination);
@@ -225,14 +224,6 @@ public class Client {
         }
     }
 
-    protected SSHClient createSSHClient() {
-        return new SSHClient();
-    }
-
-    protected SFTPClient createSFTPClient() throws IOException {
-        return sshClient.newSFTPClient();
-    }
-
     /**
      * This method is used to upload multiple files. It returns true when file upload is successful else false.
      * @param files An array of strings which represents the names of the files to be uploaded
@@ -241,7 +232,7 @@ public class Client {
      * @return true or false depending on if the file was uploaded
      * @throws IOException
      */
-    public boolean uploadMultipleFiles(String[] files, SFTPClient sftp, String destination) throws IOException {
+    public boolean uploadMultipleFiles(String[] files, SFTPClient sftp, String destination) {
         if(getSshClient().isConnected()) {
             try {
                 for (String filename : files) {
@@ -297,5 +288,13 @@ public class Client {
             System.err.println("Error occurred while logging off:" + e);
             return false;
         }
+    }
+
+    protected SSHClient createSSHClient() {
+        return new SSHClient();
+    }
+
+    protected SFTPClient createSFTPClient() throws IOException {
+        return sshClient.newSFTPClient();
     }
 }
