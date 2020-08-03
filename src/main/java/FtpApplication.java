@@ -25,6 +25,7 @@ public class FtpApplication {
             put("GMF", "Get Multiple Files (From Remote)");
             put("UF", "Upload File");
             put("UMF", "Upload Multiple Files");
+            put("CFP", "Change Remote File Permissions");
             put("RRF", "Remove Remote File");
             put("MRD", "Make Remote Directory");
             put("MRDFP", "Make Remote Directory (With Full Path)");
@@ -44,8 +45,9 @@ public class FtpApplication {
 
         String menu_choice;
         String path;
-        String src;
-        String dst;
+        String permissions;
+        String source;
+        String destination;
         String sentinel;
 
         do {
@@ -76,6 +78,21 @@ public class FtpApplication {
 
                     if(client.connect(username, password, hostname, port)) {
                         connected = true;
+
+                        // Ask if they would like to save their connection information
+                        do {
+                            System.out.print("Would you like to save your connection information? (Y/n)");
+                            sentinel = scan.nextLine().toUpperCase();
+
+                            if(sentinel.equals("Y")) {
+                                try {
+                                    client.saveConnectionInformation(username, password, hostname, Integer.toString(port));
+                                    System.out.println("Your connection information has been saved!");
+                                } catch(IOException e) {
+                                    System.err.println("An error has occurred while trying to save your connection information:" + e);
+                                }
+                            }
+                        } while(sentinel.equals("N") && sentinel.equals("Y"));
                     } else {
                         connected = false;
                     }
@@ -119,15 +136,15 @@ public class FtpApplication {
                     case "GF":
                         System.out.println(commands.get(menu_choice));
                         System.out.print("Path of file to get: ");
-                        src = scan.nextLine();
+                        source = scan.nextLine();
 
                         System.out.print("Destination path: ");
-                        dst = scan.nextLine();
+                        destination = scan.nextLine();
 
                         try {
-                            client.getRemoteFile(src, dst);
+                            client.getRemoteFile(source, destination);
                         } catch(IOException e) {
-                            System.err.println("Error occurred while getting file " + src + " :" + e);
+                            System.err.println("Error occurred while getting file " + source + " :" + e);
                         }
                         break;
                     case "GMF":
@@ -137,34 +154,34 @@ public class FtpApplication {
                     case "UF":
                         System.out.println(commands.get(menu_choice));
                         System.out.print("Path of file to upload: ");
-                        src = scan.nextLine();
+                        source = scan.nextLine();
 
                         System.out.print("Destination path: ");
-                        dst = scan.nextLine();
+                        destination = scan.nextLine();
 
                         try {
-                            client.uploadFile(src, dst);
+                            client.uploadFile(source, destination);
                         } catch(IOException e) {
-                            System.err.println("Error occurred while getting file " + src + " :" + e);
+                            System.err.println("Error occurred while getting file " + source + " :" + e);
                         }
                         break;
                     case "UMF":
                         System.out.println(commands.get(menu_choice));
                         System.out.print("Destination path: ");
-                        dst = scan.nextLine();
+                        destination = scan.nextLine();
 
                         Set uploadFileSet = new HashSet<String>();
                         do {
                             System.out.print("Path of file to upload: ");
-                            src = scan.nextLine();
+                            source = scan.nextLine();
 
-                            uploadFileSet.add(src);
+                            uploadFileSet.add(source);
 
                             System.out.print("Upload another file? (Y/n)");
                             sentinel = scan.nextLine().toUpperCase();
                         } while(sentinel.equals('N'));
 
-                        client.uploadMultipleFiles(Arrays.copyOf(uploadFileSet.toArray(), uploadFileSet.toArray().length, String[].class), dst);
+                        client.uploadMultipleFiles(Arrays.copyOf(uploadFileSet.toArray(), uploadFileSet.toArray().length, String[].class), destination);
                         break;
                     case "RRF":
                         System.out.println(commands.get(menu_choice));
@@ -194,6 +211,20 @@ public class FtpApplication {
                             client.makeDirectoryWithPath(path);
                         } catch(IOException e) {
                             System.err.println("Error occurred while listing remote files:" + e);
+                        }
+                        break;
+                    case "CFP":
+                        System.out.println(commands.get(menu_choice));
+                        System.out.print("Please enter the path of the file you wish to change: ");
+                        path = scan.nextLine();
+
+                        System.out.print("Please enter the the new file permissions (e.g. 777, 600, 444): ");
+                        permissions = scan.nextLine();
+
+                        try {
+                            client.changeRemotePermissions(path, permissions);
+                        } catch(IOException e) {
+                            System.err.println("Error occurred while changing  remote file permissions:" + e);
                         }
                         break;
                     case "DRD":
