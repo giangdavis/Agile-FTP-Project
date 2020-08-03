@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Properties;
+import java.util.Scanner;
 
 public class Client {
     private String hostname;
@@ -82,6 +83,12 @@ public class Client {
         return true;
     }
 
+    /**
+     * This method lists all the files/directories of the given path
+     * @param directory The path of the directory
+     * @return returns true if listed successfully else returns false
+     * @throws IOException
+     */
     public boolean listRemoteFiles(String directory) throws IOException {
         if (getSshClient().isConnected()) {
             String Dir = (directory.equals(".")) ? "root" : directory;
@@ -382,6 +389,26 @@ public class Client {
             return false;
         } else {
             return true;
+        }
+    }
+
+    /**
+     * The code changes the permissions on the remote file.
+     * @param client SFTPClient object
+     * @param path path of the file
+     * @return returns true if the permission changed successfully else returns false
+     */
+    public boolean changeRemotePermissions(SFTPClient client, String path) {
+        try {
+            client.chmod(path, Integer.parseInt("777", 8));
+            System.out.println( "Successfully changed the file permissions..!!");
+            return true;
+        }
+        catch (NumberFormatException | IOException e) {
+            System.out.println( "Failed to change file permissions");
+            System.out.println(e.getMessage());
+            System.out.println("Error. Could not change permissions or invalid chmod code. See the message above.");
+            return false;
         }
     }
 }
