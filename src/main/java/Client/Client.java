@@ -125,7 +125,7 @@ public class Client {
     /**
      * This method returns true or false depending on if a remote file is successfully downloaded or not.
      *
-     * @param source A string which represents the path to the file to download
+     * @param source A string array which holds multiple files
      * @param destination A string which represents the path to where the file should be downloaded to locally
      * @return true or false depending on if the file is successfully downloaded
      * @throws IOException
@@ -133,25 +133,9 @@ public class Client {
     public boolean getMultipleRemoteFiles(String[] source, String destination) throws IOException{
        if(getSshClient().isConnected()) {
            try {
-               //System.out.println("List of Remote Files in " + Dir + ":");
-               // List fileList = client.ls(source);
-               //List<RemoteResourceInfo> test = client.ls(source);
-               //for (RemoteResourceInfo i : test) {
-
-                 //  if (!i.isDirectory() && i.isRegularFile()) {
-                   //    System.out.println(i.toString());
-                       //getRemoteFile(i.toString(), destination);
                    for(String file : source) {
                         getRemoteFile(file, destination);
                    }
-
-
-               // for (Object file: fileList){
-
-               // System.out.println(file.toString());
-
-               //client.get(source, destination);
-               //}
            } catch (IOException e) {
                System.err.println("Error while getting remote file: " + e);
                return false;
