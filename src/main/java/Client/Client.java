@@ -63,6 +63,15 @@ public class Client {
         this.sshClient = sshClient;
     }
 
+    /**
+     * This method connects the user to a remote server.
+     *
+     * @param username A string containing the user's username
+     * @param password A string containing the user's password
+     * @param hostname A string representing which remote server to connect to
+     * @param port A integer representing what port to use when SSH'ing into the remote server
+     * @return true or false depending on if the user is able to be connected
+     */
     public boolean connect(String username, String password, String hostname, int port) {
         final SSHClient ssh = createSSHClient();
         setHostname(hostname);
@@ -85,6 +94,7 @@ public class Client {
 
     /**
      * This method lists all the files/directories of the given path
+     *
      * @param directory The path of the directory
      * @return returns true if listed successfully else returns false
      * @throws IOException
@@ -115,6 +125,14 @@ public class Client {
         return true;
     }
 
+    /**
+     * This method returns true or false depending on if a remote file is successfully downloaded or not.
+     *
+     * @param source A string which represents the path to the file to download
+     * @param dest A string which represents the path to where the file should be downloaded to locally
+     * @return true or false depending on if the file is successfully downloaded
+     * @throws IOException
+     */
     public boolean getRemoteFile(String source, String dest) throws IOException {
         if (getSshClient().isConnected()) {
             SFTPClient client = createSFTPClient();
@@ -139,23 +157,30 @@ public class Client {
      * this by default will create the directory in the home directory
      *
      * @param dirName A string which represents the directory name
-     * @param client  A SFTPClient object which is used to make the directory
      * @return true or false depending on if the directory was successfully created
      * @throws IOException
      */
-    public boolean makeDirectory(String dirName, SFTPClient client) throws IOException {
-        FileAttributes att = client.statExistence(dirName);
-        if (att == null) {
-            try {
-                client.mkdir(dirName);
-                System.out.println("Directory successfully created!");
-                return true;
-            } catch (IOException e) {
-                System.out.println("Something happened, try creating the specified directory again");
+    public boolean makeDirectory(String dirName) throws IOException {
+        if(getSshClient().isConnected()) {
+            SFTPClient client = createSFTPClient();
+            FileAttributes att = client.statExistence(dirName);
+            if (att == null) {
+                try {
+                    client.mkdir(dirName);
+                    System.out.println("Directory successfully created!");
+                    return true;
+                } catch (IOException e) {
+                    System.out.println("Something happened, try creating the specified directory again");
+                    return false;
+                } finally {
+                    client.close();
+                }
+            } else {
+                System.out.println("Directory with specified name already exists!");
                 return false;
             }
         } else {
-            System.out.println("Directory with specified name already exists!");
+            System.err.println("Error while getting remote file: SSH Client is not connected");
             return false;
         }
     }
@@ -164,23 +189,30 @@ public class Client {
      * This method returns true or false depending on if a directory with a specified path was created
      *
      * @param path   A string which represents the path of where to create a directory
-     * @param client A SFTPClient object which is used to make the directory
      * @return true or false depending on if the directory was successfully created
      * @throws IOException
      */
-    public boolean makeDirectoryWithPath(String path, SFTPClient client) throws IOException {
-        FileAttributes att = client.statExistence(path);
-        if (att == null) {
-            try {
-                client.mkdirs(path);
-                System.out.println("Directory successfully created!");
-                return true;
-            } catch (IOException e) {
-                System.out.println("Something happened, try creating the specified directory again");
+    public boolean makeDirectoryWithPath(String path) throws IOException {
+        if(getSshClient().isConnected()) {
+            SFTPClient client = createSFTPClient();
+            FileAttributes att = client.statExistence(path);
+            if (att == null) {
+                try {
+                    client.mkdirs(path);
+                    System.out.println("Directory successfully created!");
+                    return true;
+                } catch (IOException e) {
+                    System.out.println("Something happened, try creating the specified directory again");
+                    return false;
+                } finally {
+                    client.close();
+                }
+            } else {
+                System.out.println("Directory with specified path already exists!");
                 return false;
             }
         } else {
-            System.out.println("Directory with specified path already exists!");
+            System.err.println("Error while getting remote file: SSH Client is not connected");
             return false;
         }
     }
@@ -189,24 +221,31 @@ public class Client {
      * This method returns true or false, if true is returned the file was successfully deleted, if false the file
      * was not deleted
      *
-     * @param path   A string which represents the path to a file
-     * @param client A SFTPClient object which is used to remove the file
+     * @param path A string which represents the path to a file
      * @return true or false depending on if the file was deleted
      * @throws IOException
      */
-    public boolean removeFile(String path, SFTPClient client) throws IOException {
-        FileAttributes att = client.statExistence(path);
-        if (att != null) {
-            try {
-                client.rm(path);
-                System.out.println("File was successfully deleted!");
-                return true;
-            } catch (IOException e) {
-                System.out.println("Something happened, try deleting the file again");
+    public boolean removeFile(String path) throws IOException {
+        if(getSshClient().isConnected()) {
+            SFTPClient client = createSFTPClient();
+            FileAttributes att = client.statExistence(path);
+            if (att != null) {
+                try {
+                    client.rm(path);
+                    System.out.println("File was successfully deleted!");
+                    return true;
+                } catch (IOException e) {
+                    System.out.println("Something happened, try deleting the file again");
+                    return false;
+                } finally {
+                    client.close();
+                }
+            } else {
+                System.out.println("File with specified path does not exist!");
                 return false;
             }
         } else {
-            System.out.println("File with specified path does not exist!");
+            System.err.println("Error while getting remote file: SSH Client is not connected");
             return false;
         }
     }
@@ -216,45 +255,42 @@ public class Client {
      * if false the file was not uploaded
      *
      * @param filename A string which represents the filename of the file being uploaded
-     * @param sftp     A SFTPClient object which is used to upload the file
      * @return true or false depending on if the file was succesfully uploaded
      * @throws IOException
      */
-    public boolean uploadFile(String filename, SFTPClient sftp, String destination) throws IOException {
-        try {
-            final String fileToTransfer = filename;
+    public boolean uploadFile(String filename, String destination) throws IOException {
+        if(getSshClient().isConnected()) {
+            SFTPClient client = createSFTPClient();
+            try {
+                final String fileToTransfer = filename;
 
-            sftp.put(new FileSystemFile(fileToTransfer), destination);
-            System.out.println("File upload successful");
-            return true;
-        }
-        catch(IOException e) {
-            System.out.println("Error in uploading " + filename + " to sftp server, try again");
+                client.put(new FileSystemFile(fileToTransfer), destination);
+                System.out.println("File upload successful");
+                return true;
+            } catch (IOException e) {
+                System.out.println("Error in uploading " + filename + " to sftp server, try again");
+                return false;
+            } finally {
+                client.close();
+            }
+        } else {
+            System.err.println("Error while getting remote file: SSH Client is not connected");
             return false;
         }
     }
 
-    protected SSHClient createSSHClient() {
-        return new SSHClient();
-    }
-
-    protected SFTPClient createSFTPClient() throws IOException {
-        return sshClient.newSFTPClient();
-    }
-
     /**
      * This method is used to upload multiple files. It returns true when file upload is successful else false.
+     *
      * @param files An array of strings which represents the names of the files to be uploaded
-     * @param sftp A SFTPClient object used to upload the files
      * @param destination A string which represents the destination path for the files being uploaded
      * @return true or false depending on if the file was uploaded
-     * @throws IOException
      */
-    public boolean uploadMultipleFiles(String[] files, SFTPClient sftp, String destination) throws IOException {
+    public boolean uploadMultipleFiles(String[] files, String destination) {
         if(getSshClient().isConnected()) {
             try {
                 for (String filename : files) {
-                    uploadFile(filename, sftp, destination);
+                    uploadFile(filename, destination);
                 }
             } catch (IOException e) {
                 return false;
@@ -262,6 +298,7 @@ public class Client {
             return true;
         }
         else {
+            System.err.println("Error while getting remote file: SSH Client is not connected");
             return false;
         }
     }
@@ -271,29 +308,39 @@ public class Client {
      * was not deleted
      *
      * @param path   A string which represents the directory path
-     * @param client A SFTPClient object which is used to remove the directory
      * @return true or false depending on if the directory was deleted
      * @throws IOException
      */
-    public boolean deleteDirectory(String path, SFTPClient client) throws IOException {
-        FileAttributes att = client.statExistence(path);
-        if (att != null) {
-            try {
-                client.rmdir(path);
-                System.out.println("Directory was successfully deleted.");
-                return true;
-            }
-            catch(IOException e) {
-                System.out.println("Directory deletion failed for some reason, try again");
+    public boolean deleteDirectory(String path) throws IOException {
+        if(getSshClient().isConnected()) {
+            SFTPClient client = createSFTPClient();
+            FileAttributes att = client.statExistence(path);
+            if (att != null) {
+                try {
+                    client.rmdir(path);
+                    System.out.println("Directory was succesfully deleted.");
+                    return true;
+                } catch (IOException e) {
+                    System.out.println("Directory deletion failed for some reason, try again");
+                    return false;
+                } finally {
+                    client.close();
+                }
+            } else {
+                System.out.println("Directory does not exist.");
                 return false;
             }
-        }
-        else {
-            System.out.println("Directory does not exist.");
+        } else {
+            System.err.println("Error while getting remote file: SSH Client is not connected");
             return false;
         }
     }
 
+    /**
+     * This method disconnects the SSH connection, returning true if successful and returning false if unsuccessful.
+     *
+     * @return returns true or false dependong in if logout is successful
+     */
     public boolean logoff() {
         if (!getSshClient().isConnected()) {
             System.out.println("Already disconnected!");
@@ -343,6 +390,7 @@ public class Client {
     /**
      * This method saves a connection for unique hostnames. If details to a hostname exists in the connection.properties
      * file the method will exit.
+     *
      * @param username A string which contains the username
      * @param password A string which contains the password
      * @param hostname A string which contains the hostname
@@ -375,6 +423,7 @@ public class Client {
      * This is a helper method that is used in saveConnectionInformation(). It checks to see if a property with a specific
      * hostname exists in the connection.properties file already. If it does it returns true else if there is no
      * property it will return false.
+     *
      * @param connectionFile A File object for the connection.properites file
      * @param hostname A string which contains the hostname
      * @return true or false depending on if there is an existing property in the connection.properties file
@@ -394,21 +443,48 @@ public class Client {
 
     /**
      * The code changes the permissions on the remote file.
-     * @param client SFTPClient object
-     * @param path path of the file
+     *
+     * @param path        path of the file
+     * @param permission  file permissions to be passed to chmod
      * @return returns true if the permission changed successfully else returns false
      */
-    public boolean changeRemotePermissions(SFTPClient client, String path) {
-        try {
-            client.chmod(path, Integer.parseInt("777", 8));
-            System.out.println( "Successfully changed the file permissions..!!");
-            return true;
-        }
-        catch (NumberFormatException | IOException e) {
-            System.out.println( "Failed to change file permissions");
-            System.out.println(e.getMessage());
-            System.out.println("Error. Could not change permissions or invalid chmod code. See the message above.");
+    public boolean changeRemotePermissions(String path, String permission) throws IOException {
+        if(getSshClient().isConnected()) {
+            SFTPClient client = createSFTPClient();
+            try {
+                client.chmod(path, Integer.parseInt(permission, 8));
+                System.out.println("Successfully changed the file permissions..!!");
+                return true;
+            } catch (NumberFormatException | IOException e) {
+                System.out.println("Failed to change file permissions");
+                System.out.println(e.getMessage());
+                System.out.println("Error. Could not change permissions or invalid chmod code. See the message above.");
+                return false;
+            } finally {
+                client.close();
+            }
+        } else {
+            System.err.println("Error while getting remote file: SSH Client is not connected");
             return false;
         }
+    }
+
+    /**
+     * Returns an SSHClient -- Useful when using mocks for unit testing.
+     *
+     * @return
+     */
+    protected SSHClient createSSHClient() {
+        return new SSHClient();
+    }
+
+    /**
+     * * Returns an SFTPClient -- Useful when using mocks for unit testing.
+     *
+     * @return
+     * @throws IOException
+     */
+    protected SFTPClient createSFTPClient() throws IOException {
+        return sshClient.newSFTPClient();
     }
 }

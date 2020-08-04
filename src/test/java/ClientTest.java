@@ -2,15 +2,15 @@ import Client.Client;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.sftp.SFTPClient;
 import net.schmizz.sshj.userauth.UserAuthException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.io.IOException;
 
-import static junit.framework.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -21,7 +21,7 @@ public class ClientTest {
     @Mock
     private SFTPClient sftpClient;
 
-    @Before
+    @BeforeEach
     public void setUp(){
         MockitoAnnotations.initMocks(this);
     }
@@ -154,7 +154,7 @@ public class ClientTest {
 
         // Act
         String[] arr = {"t1","t2"};
-        boolean result = client.uploadMultipleFiles(arr, sftpClient, "something/");
+        boolean result = client.uploadMultipleFiles(arr, "something/");
 
         // Verify
         assertTrue(result);
@@ -178,7 +178,7 @@ public class ClientTest {
 
         // Act
         String[] arr = {"t1","t2"};
-        boolean result = client.uploadMultipleFiles(arr, sftpClient, "something/");
+        boolean result = client.uploadMultipleFiles(arr, "something/");
 
         // Verify
         assertFalse(result);
