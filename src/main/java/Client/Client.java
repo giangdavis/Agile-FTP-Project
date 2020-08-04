@@ -7,15 +7,7 @@ import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
 import net.schmizz.sshj.xfer.FileSystemFile;
 import net.schmizz.sshj.sftp.RemoteResourceInfo;
 
-<<<<<<< Updated upstream
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-=======
->>>>>>> Stashed changes
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.List;
 import java.util.Properties;
 import java.util.Scanner;
@@ -129,31 +121,30 @@ public class Client {
         return true;
     }
 
-<<<<<<< Updated upstream
+
     /**
      * This method returns true or false depending on if a remote file is successfully downloaded or not.
      *
      * @param source A string which represents the path to the file to download
-     * @param dest A string which represents the path to where the file should be downloaded to locally
+     * @param destination A string which represents the path to where the file should be downloaded to locally
      * @return true or false depending on if the file is successfully downloaded
      * @throws IOException
      */
-=======
-    public boolean getMultipleRemoteFiles(String source, String destination) throws IOException{
+    public boolean getMultipleRemoteFiles(String[] source, String destination) throws IOException{
        if(getSshClient().isConnected()) {
-           String Dir = (source.equals(".")) ? "root" : source;
-           SFTPClient client = createSFTPClient();
            try {
-               System.out.println("List of Remote Files in " + Dir + ":");
+               //System.out.println("List of Remote Files in " + Dir + ":");
                // List fileList = client.ls(source);
-               List<RemoteResourceInfo> test = client.ls(source);
-               for (RemoteResourceInfo i : test) {
+               //List<RemoteResourceInfo> test = client.ls(source);
+               //for (RemoteResourceInfo i : test) {
 
-                   if (!i.isDirectory() && i.isRegularFile()) {
-                       System.out.println(i.toString());
+                 //  if (!i.isDirectory() && i.isRegularFile()) {
+                   //    System.out.println(i.toString());
                        //getRemoteFile(i.toString(), destination);
+                   for(String file : source) {
+                        getRemoteFile(file, destination);
                    }
-               }
+
 
                // for (Object file: fileList){
 
@@ -173,7 +164,7 @@ public class Client {
         return true;
     }
 
->>>>>>> Stashed changes
+
     public boolean getRemoteFile(String source, String dest) throws IOException {
         if (getSshClient().isConnected()) {
             SFTPClient client = createSFTPClient();
