@@ -488,6 +488,11 @@ public class Client {
         return sshClient.newSFTPClient();
     }
 
+    /**
+     * This method prints all the hostnames from the saved info from the prop file.
+     *
+     * @return true or false depending on if the properties file existed and printed
+     */
     public boolean printConnections() {
         try(InputStream input = new FileInputStream("src/main/resources/connection.properties")){
             Properties prop = new Properties();

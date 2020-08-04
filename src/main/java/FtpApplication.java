@@ -14,6 +14,7 @@ public class FtpApplication {
         }
     };
 
+    //Prompts for hostname (used for asking which server user wants to connect to)
     private static String promptForHost() {
         Scanner scan = new Scanner(System.in);
         System.out.println("Please enter the hostname of the server you wish to connect to.");
