@@ -487,4 +487,56 @@ public class Client {
     protected SFTPClient createSFTPClient() throws IOException {
         return sshClient.newSFTPClient();
     }
+
+    public boolean printConnections() {
+        try(InputStream input = new FileInputStream("src/main/resources/connection.properties")){
+            Properties prop = new Properties();
+
+            if(input==null) {
+                System.out.println("Sorry, unable to find the properties file");
+                return false;
+            }
+
+            prop.load(input);
+
+            for(Object key : prop.keySet()) {
+                String keyString = key.toString();
+                if(keyString.contains("_hostname")) {
+                    System.out.println(prop.getProperty(keyString));
+                }
+            }
+            return true;
+
+        } catch(IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * This method takes a hostname and gets the saved connection info from the properties file
+     * then connects to the server with the connection info.
+     *
+     * @param hostname hostname of server to connect to
+     * @throws IOException
+     */
+
+    public boolean connectWithSavedInfo(String hostname) {
+        try(InputStream input = new FileInputStream("src/main/resources/connection.properties")) {
+            Properties prop = new Properties();
+
+            prop.load(input);
+
+            String username = prop.getProperty(hostname + "_username");
+            String password = prop.getProperty(hostname + "_password");
+            String host = prop.getProperty(hostname + "_hostname");
+            String portString = prop.getProperty(hostname + "_port");
+            int port=Integer.parseInt(portString);
+
+            return connect(username, password, host, port);
+        } catch(IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

@@ -295,5 +295,10 @@ public class IntegrationTests {
             System.out.println("Disconnected!");
         }
     }
+    @Test
+    public void connectWithSavedInfoTest() throws IOException {
+        client.connectWithSavedInfo("babbage.cs.pdx.edu");
+    }
+
 }
 

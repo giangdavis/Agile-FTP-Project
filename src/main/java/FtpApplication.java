@@ -14,6 +14,14 @@ public class FtpApplication {
         }
     };
 
+    private static String promptForHost() {
+        Scanner scan = new Scanner(System.in);
+        System.out.println("Please enter the hostname of the server you wish to connect to.");
+        String hostname = scan.nextLine();
+
+        return hostname;
+    }
+
     private static Map commands = new LinkedHashMap<String, String>()
     {
         {
@@ -98,7 +106,11 @@ public class FtpApplication {
                     }
                     break;
                 case "C":
-                    System.out.println("NOT IMPLEMENTED YET");
+                    if(client.printConnections() == true) {
+                        String savedHostName = promptForHost();
+                        client.connectWithSavedInfo(savedHostName);
+                        connected=true;
+                    }
                     break;
                 default:
                     System.out.println("Please select one of the listed commands!");
