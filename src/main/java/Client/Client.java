@@ -5,12 +5,12 @@ import net.schmizz.sshj.sftp.FileAttributes;
 import net.schmizz.sshj.sftp.SFTPClient;
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
 import net.schmizz.sshj.xfer.FileSystemFile;
-import net.schmizz.sshj.sftp.RemoteResourceInfo;
+
 
 import java.io.*;
 import java.util.List;
 import java.util.Properties;
-import java.util.Scanner;
+
 
 public class Client {
     private String hostname;

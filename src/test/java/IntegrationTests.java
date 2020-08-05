@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class IntegrationTests {
     // You can put your credentials in here -- REMOVE THEM BEFORE PUSHING TO GITHUB
     // Or you can have a .env file with your credentials in it and the values in the .env file will be used
-    private Credentials credentials = new Credentials(null, null, null, 22);
+    private Credentials credentials = new Credentials("devyani", "hexap*M92m", "babbage.cs.pdx.edu", 22);
 
     private Client client = new Client();
 
@@ -216,8 +216,6 @@ public class IntegrationTests {
             assertTrue(att_two != null); // if the file exists, this att should not be null
         }
         finally {
-            //client.removeFile(REMOTE_TEST_DIRECTORY + "/" + TEST_FILE_ONE);
-           // client.removeFile(REMOTE_TEST_DIRECTORY + "/" + TEST_FILE_TWO);
             sftp.close();
             client.getSshClient().disconnect();
             System.out.println("disconnected");
