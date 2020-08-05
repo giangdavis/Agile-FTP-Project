@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class IntegrationTests {
     // You can put your credentials in here -- REMOVE THEM BEFORE PUSHING TO GITHUB
     // Or you can have a .env file with your credentials in it and the values in the .env file will be used
-    private Credentials credentials = new Credentials(null, null, null, 22);
+    private Credentials credentials = new Credentials("devyani", "hexap*M92m", "babbage.cs.pdx.edu", 22);
 
     private Client client = new Client();
 
@@ -216,8 +216,6 @@ public class IntegrationTests {
             assertTrue(att_two != null); // if the file exists, this att should not be null
         }
         finally {
-            client.removeFile(REMOTE_TEST_DIRECTORY + "/" + TEST_FILE_ONE);
-            client.removeFile(REMOTE_TEST_DIRECTORY + "/" + TEST_FILE_TWO);
             sftp.close();
             client.getSshClient().disconnect();
             System.out.println("disconnected");
@@ -226,6 +224,35 @@ public class IntegrationTests {
 
     @Test
     @Order(8)
+    public void getMultipleTest() throws IOException {
+        final String file_one = REMOTE_TEST_DIRECTORY + "/" + TEST_FILE_ONE;
+        final String file_two = REMOTE_TEST_DIRECTORY + "/" + TEST_FILE_TWO;
+        File tempFile1 = new File(LOCAL_TEST_DIRECTORY + File.separator + TEST_FILE_ONE);
+        File tempFile2 = new File(LOCAL_TEST_DIRECTORY + File.separator + TEST_FILE_TWO);
+        final String destination = LOCAL_TEST_DIRECTORY;
+        final String[] files = {file_one, file_two};
+
+        client.connect(credentials.getUser(), credentials.getPassword(), credentials.getHostname(), credentials.getPort());
+        final SFTPClient sftp = client.getSshClient().newSFTPClient();
+
+        try {
+            assertTrue(client.getMultipleRemoteFiles(files, destination));
+            assertTrue(tempFile1.exists());
+            assertTrue(tempFile2.exists());
+        }
+        finally {
+            client.removeFile(REMOTE_TEST_DIRECTORY + File.separator + TEST_FILE_ONE);
+            client.removeFile(REMOTE_TEST_DIRECTORY + File.separator + TEST_FILE_TWO);
+            sftp.close();
+            client.getSshClient().disconnect();
+            System.out.println("disconnected");
+            tempFile1.delete();
+            tempFile2.delete();
+        }
+    }
+
+    @Test
+    @Order(9)
     public void deleteDirectoryTest() throws IOException {
         client.connect(credentials.getUser(), credentials.getPassword(), credentials.getHostname(), credentials.getPort());
         final SFTPClient sftp = client.getSshClient().newSFTPClient();

@@ -6,15 +6,11 @@ import net.schmizz.sshj.sftp.SFTPClient;
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
 import net.schmizz.sshj.xfer.FileSystemFile;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+
+import java.io.*;
 import java.util.List;
 import java.util.Properties;
-import java.util.Scanner;
+
 
 public class Client {
     private String hostname;
@@ -125,14 +121,34 @@ public class Client {
         return true;
     }
 
+
     /**
      * This method returns true or false depending on if a remote file is successfully downloaded or not.
      *
-     * @param source A string which represents the path to the file to download
-     * @param dest A string which represents the path to where the file should be downloaded to locally
+     * @param source A string array which holds multiple files
+     * @param destination A string which represents the path to where the file should be downloaded to locally
      * @return true or false depending on if the file is successfully downloaded
      * @throws IOException
      */
+    public boolean getMultipleRemoteFiles(String[] source, String destination) throws IOException{
+       if(getSshClient().isConnected()) {
+           try {
+                   for(String file : source) {
+                        getRemoteFile(file, destination);
+                   }
+           } catch (IOException e) {
+               System.err.println("Error while getting remote file: " + e);
+               return false;
+           }
+       }
+         else {
+            System.err.println("Error while getting remote file: SSH Client is not connected");
+            return false;
+        }
+        return true;
+    }
+
+
     public boolean getRemoteFile(String source, String dest) throws IOException {
         if (getSshClient().isConnected()) {
             SFTPClient client = createSFTPClient();
@@ -151,6 +167,7 @@ public class Client {
         }
         return true;
     }
+
 
     /**
      * This method returns true or false depending on if a directory with a specified name was created,
