@@ -272,4 +272,13 @@ public class ClientTest {
 
         assertFalse(client.renameLocalFile("path","t1", "t2"));
     }
+
+    @Test
+    public void connectWithSavedInfoTest() throws IOException {
+        Client client = new Client();
+
+        //valid hostname
+        assertTrue(client.connectWithSavedInfo("validHostname"));
+    }
+
 }
