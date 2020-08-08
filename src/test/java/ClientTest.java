@@ -7,9 +7,11 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.io.File;
 import java.io.IOException;
 
 import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -264,5 +266,17 @@ public class ClientTest {
         Client client = new Client();
         assertFalse(Client.renameRemoteFile("", "", sftpClient));
 
+    }
+
+public static class SearchRemoteFileTest {
+    Client client = new Client();
+
+
+    @Test
+    public void remoteDirDoesNotExists()throws IOException {
+        String fileNameToSearch = "txt";
+        File remoteDirPath = new File("/Users/agile/Documents/FTPFile");
+        assertFalse(client.searchRemoteFile(remoteDirPath, fileNameToSearch));
+    }
     }
 }

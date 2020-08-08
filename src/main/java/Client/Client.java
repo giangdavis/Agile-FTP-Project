@@ -8,6 +8,7 @@ import net.schmizz.sshj.xfer.FileSystemFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Client {
@@ -16,6 +17,9 @@ public class Client {
     private String password;
     private int port;
     SSHClient sshClient;
+    String strRemoteDirPath = null;
+
+
 
     public String getHostname() {
         return hostname;
@@ -365,4 +369,52 @@ public class Client {
 
         return false;
     }
+
+    public void searchRemoteDirectory(File dirPath, String fileNameToSearch)  throws IOException{
+        if(dirPath.isDirectory()){
+            String strRemoteSubDirPath = strRemoteDirPath + "/" + dirPath.getName();
+            File[] listRemoteFiles = Client.listFiles();
+            for (File localFile: listRemoteFiles) {
+                if(localFile.isDirectory()){
+                    if(localFile.getName().toLowerCase().contains(fileNameToSearch))
+                        System.out.println("Found: " + localFile.getName() + " at " + strRemoteSubDirPath);
+                    strRemoteDirPath = strRemoteSubDirPath;
+                    searchRemoteDirectory(localFile, fileNameToSearch);
+                } else{
+                    if(localFile.getName().toLowerCase().contains(fileNameToSearch))
+                        System.out.println("Found: " + localFile.getName() + " at " + strRemoteSubDirPath);
+                }
+            }
+        }else
+            System.out.println("Directory " + dirPath.getName() + " doesn't exist");
+    }
+
+    private static File[] listFiles() {
+        return new File[0];
+    }
+    public boolean searchRemoteFile(File remoteDirPath, String fileNameToSearch) throws IOException{
+        if (Client.changeWorkingDirectory(remoteDirPath.getAbsolutePath())) {
+            strRemoteDirPath = remoteDirPath.getAbsolutePath();
+            File[] listRemoteFiles = Client.listFiles();
+            for (File localFile: listRemoteFiles) {
+                if(localFile.isDirectory()) {
+                    if(localFile.getName().toLowerCase().contains(fileNameToSearch))
+                        System.out.println("Found: " + localFile.getName() + " at " + strRemoteDirPath);
+                    searchRemoteDirectory(localFile, fileNameToSearch);
+                } else{
+                    if(localFile.getName().toLowerCase().contains(fileNameToSearch))
+                        System.out.println("Found: " + localFile.getName() + " at " + strRemoteDirPath);
+                }
+            }
+            return true;
+        } else {
+            System.out.println("Directory " + remoteDirPath.getAbsoluteFile() + " on remote server doesn't exist");
+            return false;
+        }
+    }
+
+    private static boolean changeWorkingDirectory(String absolutePath) {
+        return false;
+    }
+
 }
