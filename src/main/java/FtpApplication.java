@@ -1,7 +1,9 @@
 import Client.Client;
+import Client.CustomType;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.*;
 
 public class FtpApplication {
     private static Map connectionOptions = new LinkedHashMap<String, String>()
@@ -35,20 +37,23 @@ public class FtpApplication {
 
     public static void main(String [] args) {
         Scanner scan = new Scanner(System.in);
-        String username;
-        String password;
-        String hostname;
-        int port;
+        CustomType username = new CustomType();
+        CustomType password = new CustomType();
+        CustomType hostname = new CustomType();
+        CustomType port = new CustomType();
         boolean connected = false;
         boolean running = true;
         Client client = new Client();
 
-        String menu_choice;
-        String path;
-        String permissions;
-        String source;
-        String destination;
-        String sentinel;
+        final CustomType menu_choice = new CustomType();
+        final CustomType path = new CustomType();
+        final CustomType permissions = new CustomType();
+        final CustomType source = new CustomType();
+        final CustomType destination = new CustomType();
+        final CustomType sentinel = new CustomType();
+
+        final ExecutorService service = Executors.newSingleThreadExecutor();
+        Future<Object> future;
 
         do {
             // Connect to remote server
@@ -56,43 +61,73 @@ public class FtpApplication {
             System.out.println("Please enter one for the following commands");
             printFormattedMap(connectionOptions);
             System.out.print("Type your selected command here: ");
-            menu_choice = scan.nextLine().toUpperCase();
+            try {
+                future = service.submit(() -> {
+                    menu_choice.setStringValue(scan.nextLine().toUpperCase());
+                    return 0;
+                });
+                future.get(30, TimeUnit.MINUTES);
+            }
+            catch(TimeoutException | InterruptedException | ExecutionException e) {
+                System.out.println("\nTimed OUT!");
+                System.exit(0);
+            }
 
-            switch (menu_choice) {
+            switch (menu_choice.getStringValue()) {
                 case "E":
                     running = false;
                     break;
                 case "T":
-                    System.out.print("Username: ");
-                    username = scan.nextLine();
+                    try {
+                        future = service.submit(() -> {
+                            System.out.print("Username: ");
+                            username.setStringValue(scan.nextLine());
 
-                    System.out.print("Password: ");
-                    password = scan.nextLine();
+                            System.out.print("Password: ");
+                            password.setStringValue(scan.nextLine());
 
-                    System.out.print("Hostname: ");
-                    hostname = scan.nextLine();
+                            System.out.print("Hostname: ");
+                            hostname.setStringValue(scan.nextLine());
 
-                    System.out.print("Port: ");
-                    port = scan.nextInt();
-                    scan.nextLine();
+                            System.out.print("Port: ");
+                            port.setIntegerValue(scan.nextInt());
+                            scan.nextLine();
 
-                    if(client.connect(username, password, hostname, port)) {
+                            return 0;
+                        });
+                        future.get(30, TimeUnit.MINUTES);
+                    } catch(TimeoutException | InterruptedException | ExecutionException e) {
+                        System.out.println("\nTimed OUT!");
+                        System.exit(0);
+                    }
+
+                    if(client.connect(username.getStringValue(), password.getStringValue(), hostname.getStringValue(), port.getIntegerValue())) {
                         connected = true;
 
                         // Ask if they would like to save their connection information
                         do {
-                            System.out.print("Would you like to save your connection information? (Y/n)");
-                            sentinel = scan.nextLine().toUpperCase();
+                            try{
+                                future = service.submit(() ->  {
+                                    System.out.print("Would you like to save your connection information? (Y/n)");
+                                    sentinel.setStringValue(scan.nextLine().toUpperCase());
+                                    return 0;
+                                });
+                                future.get(30, TimeUnit.MINUTES);
+                            } catch(TimeoutException | InterruptedException | ExecutionException e) {
+                                System.out.println("\nTimed OUT!");
+                                client.logoff();
+                                System.exit(0);
+                            }
 
-                            if(sentinel.equals("Y")) {
+                            if(sentinel.getStringValue().equals("Y")) {
                                 try {
-                                    client.saveConnectionInformation(username, password, hostname, Integer.toString(port));
+                                    client.saveConnectionInformation(username.getStringValue(), password.getStringValue(), hostname.getStringValue(), Integer.toString(port.getIntegerValue()));
                                     System.out.println("Your connection information has been saved!");
                                 } catch(IOException e) {
                                     System.err.println("An error has occurred while trying to save your connection information:" + e);
                                 }
                             }
-                        } while(sentinel.equals("N") && sentinel.equals("Y"));
+                        } while(sentinel.getStringValue().equals("N") && sentinel.getStringValue().equals("Y"));
                     } else {
                         connected = false;
                     }
@@ -109,130 +144,256 @@ public class FtpApplication {
                 System.out.println("\n\n\nPlease enter one of the following commands: ");
                 printFormattedMap(commands);
                 System.out.print("Type your selected command here: ");
-                menu_choice = scan.nextLine().toUpperCase();
+                try {
+                    future = service.submit(() -> {
+                        menu_choice.setStringValue(scan.nextLine().toUpperCase());
+                        return 0;
+                    });
+                    future.get(30, TimeUnit.MINUTES);
+                } catch(TimeoutException | InterruptedException | ExecutionException e) {
+                    System.out.println("\nTimed OUT!");
+                    client.logoff();
+                    System.exit(0);
+                }
 
-                switch (menu_choice) {
+                switch (menu_choice.getStringValue()) {
                     case "E":
-                        System.out.println(commands.get(menu_choice));
+                        System.out.println(commands.get(menu_choice.getStringValue()));
                         client.logoff();
                         running = false;
                         connected = false;
                         break;
                     case "L":
-                        System.out.println(commands.get(menu_choice));
+                        System.out.println(commands.get(menu_choice.getStringValue()));
                         client.logoff();
                         connected = false;
                         break;
                     case "LRF":
-                        System.out.println(commands.get(menu_choice));
+                        System.out.println(commands.get(menu_choice.getStringValue()));
                         System.out.print("Please the directory/file path you would like to list: ");
-                        path = scan.nextLine();
                         try {
-                            client.listRemoteFiles(path);
+                            future = service.submit(() -> {
+                                path.setStringValue(scan.nextLine());
+                                return 0;
+                            });
+                            future.get(30, TimeUnit.MINUTES);
+                        } catch(TimeoutException | InterruptedException | ExecutionException e) {
+                            System.out.println("\nTimed OUT!");
+                            client.logoff();
+                            System.exit(0);
+                        }
+
+                        try {
+                            client.listRemoteFiles(path.getStringValue());
                         } catch(IOException e) {
                             System.err.println("Error occurred while listing remote files:" + e);
                         }
                         break;
                     case "GF":
-                        System.out.println(commands.get(menu_choice));
-                        System.out.print("Path of file to get: ");
-                        source = scan.nextLine();
+                        System.out.println(commands.get(menu_choice.getStringValue()));
+                        try {
+                            future = service.submit(() -> {
+                                System.out.print("Path of file to get: ");
+                                source.setStringValue(scan.nextLine());
 
-                        System.out.print("Destination path: ");
-                        destination = scan.nextLine();
+                                System.out.print("Destination path: ");
+                                destination.setStringValue(scan.nextLine());
+                                return 0;
+                            });
+                            future.get(30, TimeUnit.MINUTES);
+                        } catch(TimeoutException | InterruptedException | ExecutionException e) {
+                            System.out.println("\nTimed OUT!");
+                            client.logoff();
+                            System.exit(0);
+                        }
 
                         try {
-                            client.getRemoteFile(source, destination);
+                            client.getRemoteFile(source.getStringValue(), destination.getStringValue());
                         } catch(IOException e) {
-                            System.err.println("Error occurred while getting file " + source + " :" + e);
+                            System.err.println("Error occurred while getting file " + source.getStringValue() + " :" + e);
                         }
                         break;
                     case "GMF":
-                        System.out.println(commands.get(menu_choice));
+                        System.out.println(commands.get(menu_choice.getStringValue()));
                         System.out.println("NOT IMPLEMENTED YET");
                         break;
                     case "UF":
-                        System.out.println(commands.get(menu_choice));
-                        System.out.print("Path of file to upload: ");
-                        source = scan.nextLine();
+                        System.out.println(commands.get(menu_choice.getStringValue()));
+                        try {
+                            future = service.submit(() -> {
+                                System.out.print("Path of file to upload: ");
+                                source.setStringValue(scan.nextLine());
 
-                        System.out.print("Destination path: ");
-                        destination = scan.nextLine();
+                                System.out.print("Destination path: ");
+                                destination.setStringValue(scan.nextLine());
+                                return 0;
+                            });
+                            future.get(30, TimeUnit.MINUTES);
+                        } catch(TimeoutException | InterruptedException | ExecutionException e) {
+                            System.out.println("\nTimed OUT!");
+                            client.logoff();
+                            System.exit(0);
+                        }
 
                         try {
-                            client.uploadFile(source, destination);
+                            client.uploadFile(source.getStringValue(), destination.getStringValue());
                         } catch(IOException e) {
-                            System.err.println("Error occurred while getting file " + source + " :" + e);
+                            System.err.println("Error occurred while getting file " + source.getStringValue() + " :" + e);
                         }
                         break;
                     case "UMF":
-                        System.out.println(commands.get(menu_choice));
-                        System.out.print("Destination path: ");
-                        destination = scan.nextLine();
+                        System.out.println(commands.get(menu_choice.getStringValue()));
+                        try {
+                            future = service.submit(() -> {
+                                System.out.print("Destination path: ");
+                                destination.setStringValue(scan.nextLine());
+                                return 0;
+                            });
+                            future.get(30, TimeUnit.MINUTES);
+                        } catch(TimeoutException | InterruptedException | ExecutionException e) {
+                            System.out.println("\nTimed OUT!");
+                            client.logoff();
+                            System.exit(0);
+                        }
 
                         Set uploadFileSet = new HashSet<String>();
                         do {
                             System.out.print("Path of file to upload: ");
-                            source = scan.nextLine();
+                            try {
+                                future = service.submit(() -> {
+                                    source.setStringValue(scan.nextLine());
+                                    return 0;
+                                });
+                                future.get(30, TimeUnit.MINUTES);
+                            } catch(TimeoutException | InterruptedException | ExecutionException e) {
+                                System.out.println("\nTimed OUT!");
+                                client.logoff();
+                                System.exit(0);
+                            }
+
 
                             uploadFileSet.add(source);
 
                             System.out.print("Upload another file? (Y/n)");
-                            sentinel = scan.nextLine().toUpperCase();
-                        } while(sentinel.equals('N'));
+                            sentinel.setStringValue(scan.nextLine().toUpperCase());
+                        } while(sentinel.getStringValue().equals("N"));
 
-                        client.uploadMultipleFiles(Arrays.copyOf(uploadFileSet.toArray(), uploadFileSet.toArray().length, String[].class), destination);
+                        client.uploadMultipleFiles(Arrays.copyOf(uploadFileSet.toArray(), uploadFileSet.toArray().length, String[].class), destination.getStringValue());
                         break;
                     case "RRF":
-                        System.out.println(commands.get(menu_choice));
+                        System.out.println(commands.get(menu_choice.getStringValue()));
                         System.out.print("Please enter the path to the remote file you would like to delete: ");
-                        path = scan.nextLine();
                         try {
-                            client.removeFile(path);
+                            future = service.submit(() -> {
+                                path.setStringValue(scan.nextLine());
+                                return 0;
+                            });
+                            future.get(30, TimeUnit.MINUTES);
+                        } catch(TimeoutException | InterruptedException | ExecutionException e) {
+                            System.out.println("\nTimed OUT!");
+                            client.logoff();
+                            System.exit(0);
+                        }
+
+                        try {
+                            client.removeFile(path.getStringValue());
                         } catch(IOException e) {
                             System.err.println("Error occurred while listing remote files:" + e);
                         }
                         break;
                     case "MRD":
-                        System.out.println(commands.get(menu_choice));
+                        System.out.println(commands.get(menu_choice.getStringValue()));
                         System.out.print("Please enter the path of the directory you would like to create: ");
-                        path = scan.nextLine();
                         try {
-                            client.makeDirectory(path);
+                            future = service.submit(() -> {
+                                path.setStringValue(scan.nextLine());
+                                return 0;
+                            });
+                            future.get(30, TimeUnit.MINUTES);
+                        } catch(TimeoutException | InterruptedException | ExecutionException e) {
+                            System.out.println("\nTimed OUT!");
+                            client.logoff();
+                            System.exit(0);
+                        }
+
+                        try {
+                            client.makeDirectory(path.getStringValue());
                         } catch(IOException e) {
                             System.err.println("Error occurred while listing remote files:" + e);
                         }
                         break;
                     case "MRDFP":
-                        System.out.println(commands.get(menu_choice));
+                        System.out.println(commands.get(menu_choice.getStringValue()));
                         System.out.print("Please enter the path of the directory chain you would like to create: ");
-                        path = scan.nextLine();
                         try {
-                            client.makeDirectoryWithPath(path);
+                            future = service.submit(() -> {
+                                path.setStringValue(scan.nextLine());
+                                return 0;
+                            });
+                            future.get(30, TimeUnit.MINUTES);
+                        } catch(TimeoutException | InterruptedException | ExecutionException e) {
+                            System.out.println("\nTimed OUT!");
+                            client.logoff();
+                            System.exit(0);
+                        }
+
+                        try {
+                            client.makeDirectoryWithPath(path.getStringValue());
                         } catch(IOException e) {
                             System.err.println("Error occurred while listing remote files:" + e);
                         }
                         break;
                     case "CFP":
-                        System.out.println(commands.get(menu_choice));
+                        System.out.println(commands.get(menu_choice.getStringValue()));
                         System.out.print("Please enter the path of the file you wish to change: ");
-                        path = scan.nextLine();
+                        try {
+                            future = service.submit(() -> {
+                                path.setStringValue(scan.nextLine());
+                                return 0;
+                            });
+                            future.get(30, TimeUnit.MINUTES);
+                        } catch(TimeoutException | InterruptedException | ExecutionException e) {
+                            System.out.println("\nTimed OUT!");
+                            client.logoff();
+                            System.exit(0);
+                        }
 
                         System.out.print("Please enter the the new file permissions (e.g. 777, 600, 444): ");
-                        permissions = scan.nextLine();
+                        try {
+                            future = service.submit(() -> {
+                                permissions.setStringValue(scan.nextLine());
+                                return 0;
+                            });
+                            future.get(30, TimeUnit.MINUTES);
+                        } catch(TimeoutException | InterruptedException | ExecutionException e) {
+                            System.out.println("\nTimed OUT!");
+                            client.logoff();
+                            System.exit(0);
+                        }
 
                         try {
-                            client.changeRemotePermissions(path, permissions);
+                            client.changeRemotePermissions(path.getStringValue(), permissions.getStringValue());
                         } catch(IOException e) {
                             System.err.println("Error occurred while changing  remote file permissions:" + e);
                         }
                         break;
                     case "DRD":
-                        System.out.println(commands.get(menu_choice));
+                        System.out.println(commands.get(menu_choice.getStringValue()));
                         System.out.print("Please enter the path to the remote directory you would like to delete: ");
-                        path = scan.nextLine();
                         try {
-                            client.deleteDirectory(path);
+                            future = service.submit(() -> {
+                                path.setStringValue(scan.nextLine());
+                                return 0;
+                            });
+                            future.get(30, TimeUnit.MINUTES);
+                        } catch(TimeoutException | InterruptedException | ExecutionException e) {
+                            System.out.println("\nTimed OUT!");
+                            client.logoff();
+                            System.exit(0);
+                        }
+
+                        try {
+                            client.deleteDirectory(path.getStringValue());
                         } catch(IOException e) {
                             System.err.println("Error occurred while listing remote files:" + e);
                         }
