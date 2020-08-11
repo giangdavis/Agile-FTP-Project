@@ -136,6 +136,103 @@ public class ClientTest {
     }
 
     @Test
+    public void testmakeDirectory() throws IOException {
+        // Arrange
+        when(sshClient.isConnected()).thenReturn(true);
+
+        Client client = new Client() {
+            @Override
+            public SSHClient getSshClient() {
+                return sshClient;
+            }
+
+            @Override
+            protected SFTPClient createSFTPClient() {
+                return sftpClient;
+            }
+        };
+
+        // Act
+        boolean result = client.makeDirectory("something_directory");
+
+        // Verify
+        assertTrue(result);
+    }
+
+    @Test
+    public void testmakeDirectory_sshClientNotConnected() throws IOException {
+        // Arrange
+        when(sshClient.isConnected()).thenReturn(false);
+
+        Client client = new Client() {
+            @Override
+            public SSHClient getSshClient() {
+                return sshClient;
+            }
+
+            @Override
+            protected SFTPClient createSFTPClient() {
+                return sftpClient;
+            }
+        };
+
+        // Act
+        boolean result = client.makeDirectory("something_directory");
+
+        // Verify
+        assertFalse(result);
+    }
+
+
+    @Test
+    public void testListRemoteFile() throws IOException {
+        // Arrange
+        when(sshClient.isConnected()).thenReturn(true);
+
+        Client client = new Client() {
+            @Override
+            public SSHClient getSshClient() {
+                return sshClient;
+            }
+
+            @Override
+            protected SFTPClient createSFTPClient() {
+                return sftpClient;
+            }
+        };
+
+        // Act
+        boolean result = client.listRemoteFiles("something/");
+
+        // Verify
+        assertTrue(result);
+    }
+
+    @Test
+    public void testListRemoteFile_sshClientNotConnected() throws IOException {
+        // Arrange
+        when(sshClient.isConnected()).thenReturn(false);
+
+        Client client = new Client() {
+            @Override
+            public SSHClient getSshClient() {
+                return sshClient;
+            }
+
+            @Override
+            protected SFTPClient createSFTPClient() {
+                return sftpClient;
+            }
+        };
+
+        // Act
+        boolean result = client.listRemoteFiles("something/");
+
+        // Verify
+        assertFalse(result);
+    }
+
+    @Test
     public void testPutMultipleFiles() throws IOException {
         // Arrange
         when(sshClient.isConnected()).thenReturn(true);
@@ -160,6 +257,7 @@ public class ClientTest {
         assertTrue(result);
     }
 
+
     @Test
     public void testPutMultipleFiles_SSHClientNotConnected() throws IOException {
         when(sshClient.isConnected()).thenReturn(false);
@@ -179,6 +277,56 @@ public class ClientTest {
         // Act
         String[] arr = {"t1","t2"};
         boolean result = client.uploadMultipleFiles(arr, "something/");
+
+        // Verify
+        assertFalse(result);
+    }
+
+    @Test
+    public void testGetMultipleFiles() throws IOException {
+        // Arrange
+        when(sshClient.isConnected()).thenReturn(true);
+
+        Client client = new Client() {
+            @Override
+            public SSHClient getSshClient() {
+                return sshClient;
+            }
+
+            @Override
+            protected SFTPClient createSFTPClient() {
+                return sftpClient;
+            }
+        };
+
+        // Act
+        String[] arr = {"t1","t2"};
+        boolean result = client.getMultipleRemoteFiles(arr, "something/");
+
+        // Verify
+        assertTrue(result);
+    }
+
+    @Test
+    public void testGetMultipleFiles_sshClientNotConnected() throws IOException {
+        // Arrange
+        when(sshClient.isConnected()).thenReturn(false);
+
+        Client client = new Client() {
+            @Override
+            public SSHClient getSshClient() {
+                return sshClient;
+            }
+
+            @Override
+            protected SFTPClient createSFTPClient() {
+                return sftpClient;
+            }
+        };
+
+        // Act
+        String[] arr = {"t1","t2"};
+        boolean result = client.getMultipleRemoteFiles(arr, "something/");
 
         // Verify
         assertFalse(result);
