@@ -197,7 +197,7 @@ public class Client {
                 return false;
             }
         } else {
-            System.err.println("Error while getting remote file: SSH Client is not connected");
+            System.err.println("Error while creating remote directory: SSH Client is not connected");
             return false;
         }
     }
