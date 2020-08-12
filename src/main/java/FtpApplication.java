@@ -192,7 +192,7 @@ public class FtpApplication {
 
                             System.out.print("Upload another file? (Y/n)");
                             sentinel = scan.nextLine().toUpperCase();
-                        } while(sentinel.equals('N'));
+                        } while(sentinel.equals("Y"));
 
                         client.uploadMultipleFiles(Arrays.copyOf(uploadFileSet.toArray(), uploadFileSet.toArray().length, String[].class), destination);
                         break;
